@@ -25,3 +25,8 @@ adjudication engine with a matching council viewer.
     contested, split, unsupported — with a tunable policy (consensus threshold,
     dissent ceiling, minimum mass) and a mass-weighted cohesion score.
   - Deterministic, digest-stamped evidence bundles (FNV-1a) with a `verify`
+    round-trip guarantee.
+  - Text and `quorumforge.report.v1` JSON report renderers.
+- **CLI** (`quorumforge`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
+  `help` commands; stdin support; policy flags; and meaningful exit codes.
+- **TypeScript council viewer** (`qf-view`), dependency-light (only `tsc` at
