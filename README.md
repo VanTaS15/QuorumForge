@@ -112,3 +112,19 @@ Council cohesion: 60.1%   Policy: consensus>=0.66, dissent<0.34
 ------------------------------------------------------------------------
 [=] [c1] Writes to a single key are linearizable.
      consensus/affirmed topic=linearizability  polarity=+1.00  mass=4.33  ...
+[!] [c2] Writes across multiple keys are linearizable.
+     contested/negated topic=linearizability  polarity=-0.24  ...
+     dissenting: ada, boro
+...
+```
+
+---
+
+## The council viewer
+
+The prism is prettiest when you let the viewer render it. Build it once, then
+pipe a JSON report straight in.
+
+```sh
+# Build the viewer (installs only the TypeScript compiler).
+cd viewer
