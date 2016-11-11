@@ -173,3 +173,18 @@ OPTIONS
   -o, --output <path>    Write output to a file instead of stdout.
   --json                 Treat stdin / extensionless input as JSON.
 ```
+
+### Real invocations
+
+```sh
+# Text report from a line-oriented file.
+cargo run -- adjudicate samples/cache-coherence.qf
+
+# JSON report from a JSON deliberation.
+cargo run -- adjudicate --format json samples/migration-strategy.json
+
+# See how claim normalization collapses hedged variants.
+cargo run -- inspect samples/normalization.qf
+
+# Build a deterministic bundle and verify its integrity digest.
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
