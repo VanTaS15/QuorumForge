@@ -203,3 +203,19 @@ CI gates.
 
 ---
 
+## How the prism actually bends light
+
+The scoring model is deliberately simple enough to reproduce with a pocket
+calculator. Every non-abstaining position casts a **signed vote**:
+
+```
+vote = sign(stance) · agent_weight · confidence
+```
+
+with `sign(support) = +1` and `sign(contradict) = −1`. Confidence is clamped to
+`[0, 1]` defensively. For a claim, sum the support votes into `S` and the
+contradiction magnitudes into `C`, then:
+
+```
+decisive_mass = S + C
+polarity      = (S − C) / decisive_mass       ∈ [−1, +1]
