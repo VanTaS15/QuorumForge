@@ -234,3 +234,18 @@ The classifier then reads those three numbers against a **policy** (see below):
 - **unsupported** if `decisive_mass ≤ minimum_mass`
 - **consensus** if `|polarity| ≥ consensus_threshold` **and** `dissent_ratio < dissent_ceiling`
 - **contested** if `dissent_ratio ≥ dissent_ceiling`
+- **split** otherwise
+
+Finally, the deliberation earns a single **cohesion** score in `[0, 1]`: the
+mass-weighted average of each claim's `|polarity|`. A council that agrees loudly
+on heavy claims scores near `1.0`; one that is evenly split scores near `0`.
+
+### Worked micro-example
+
+Two agents weigh in on one claim. Ada (weight `1.5`) supports at confidence
+`0.8`; Bo (weight `1.0`) contradicts at confidence `0.6`.
+
+```
+S = 1.5 · 0.8 = 1.20        C = 1.0 · 0.6 = 0.60
+decisive_mass = 1.80
+polarity      = (1.20 − 0.60) / 1.80 = +0.333
