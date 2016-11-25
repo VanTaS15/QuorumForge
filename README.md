@@ -295,3 +295,18 @@ parser without changing its digest. Mutate any field and `verify` returns exit
 code `4`.
 
 ---
+
+## Testing
+
+Both halves ship with focused tests and are exercised together in CI.
+
+```sh
+# Rust: unit tests, integration tests, and doctests.
+cargo test
+
+# TypeScript: compile, then run the assertion-based renderer suite.
+cd viewer && npm test
+
+# Everything, via the Makefile.
+make test
+```
