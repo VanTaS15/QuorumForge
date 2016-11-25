@@ -310,3 +310,18 @@ cd viewer && npm test
 # Everything, via the Makefile.
 make test
 ```
+
+The Rust suite covers the four verdict outcomes, weight and confidence scaling,
+policy tuning, parser error paths, JSON round-trip stability (including unicode
+escapes and surrogate pairs), bundle determinism, and tamper detection. The
+viewer suite covers report validation, ANSI vs. plain output, HTML escaping, and
+render determinism.
+
+---
+
+## Design commitments
+
+- **No orchestration.** QuorumForge judges a transcript; it never runs agents.
+- **No dependencies.** Rust core is std-only; the viewer's only build-time
+  dependency is `tsc`. There is no `Cargo.lock` churn and no `node_modules`
+  supply chain to audit at runtime.
