@@ -93,3 +93,17 @@ pub fn parse_lines(contents: &str) -> Result<Deliberation, ParseError> {
         macro_rules! need {
             ($n:expr) => {
                 if fields.len() < $n {
+                    return Err(ParseError {
+                        line: line_no,
+                        message: format!(
+                            "'{}' needs {} fields, found {}",
+                            directive,
+                            $n - 1,
+                            fields.len() - 1
+                        ),
+                    });
+                }
+            };
+        }
+
+        match directive.as_str() {
