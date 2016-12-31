@@ -63,3 +63,18 @@ fn split_fields(line: &str) -> Vec<String> {
     while let Some(ch) = chars.next() {
         match ch {
             '\\' if chars.peek() == Some(&'|') => {
+                chars.next();
+                current.push('|');
+            }
+            '|' => {
+                fields.push(current.trim().to_string());
+                current = String::new();
+            }
+            _ => current.push(ch),
+        }
+    }
+    fields.push(current.trim().to_string());
+    fields
+}
+
+/// Parse the line-oriented `.qf` format.
