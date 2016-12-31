@@ -122,3 +122,18 @@ pub fn parse_lines(contents: &str) -> Result<Deliberation, ParseError> {
                 let d = require_delib(&mut delib, line_no)?;
                 let weight = parse_f64(fields.get(3), 1.0, line_no, "weight")?;
                 let role = fields.get(4).cloned().unwrap_or_default();
+                let id = fields[1].clone();
+                d.agents.insert(
+                    id.clone(),
+                    Agent {
+                        id,
+                        name: fields[2].clone(),
+                        weight,
+                        role,
+                    },
+                );
+            }
+            "claim" => {
+                need!(4);
+                let d = require_delib(&mut delib, line_no)?;
+                let id = fields[1].clone();
