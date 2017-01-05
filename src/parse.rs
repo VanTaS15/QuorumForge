@@ -181,3 +181,18 @@ pub fn parse_lines(contents: &str) -> Result<Deliberation, ParseError> {
                     Some(pos) => pos.citations.push(citation),
                     None => {
                         return Err(ParseError {
+                            line: line_no,
+                            message: format!(
+                                "'cite' references position ({}, {}) that has not been declared",
+                                agent_id, claim_id
+                            ),
+                        })
+                    }
+                }
+            }
+            other => {
+                return Err(ParseError {
+                    line: line_no,
+                    message: format!("unknown directive '{}'", other),
+                });
+            }
