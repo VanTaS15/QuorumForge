@@ -225,3 +225,18 @@ fn parse_f64(
 ) -> Result<f64, ParseError> {
     match field {
         None => Ok(default),
+        Some(s) if s.is_empty() => Ok(default),
+        Some(s) => s.parse::<f64>().map_err(|_| ParseError {
+            line: line_no,
+            message: format!("invalid {} value '{}'", what, s),
+        }),
+    }
+}
+
+/// Parse the JSON evidence format.
+pub fn parse_json(contents: &str) -> Result<Deliberation, ParseError> {
+    let root = json::parse(contents).map_err(|e| ParseError {
+        line: 0,
+        message: e.message,
+    })?;
+
