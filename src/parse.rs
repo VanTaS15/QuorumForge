@@ -196,3 +196,18 @@ pub fn parse_lines(contents: &str) -> Result<Deliberation, ParseError> {
                     message: format!("unknown directive '{}'", other),
                 });
             }
+        }
+    }
+
+    let delib = delib.ok_or_else(|| ParseError {
+        line: 0,
+        message: "file contained no 'delib' record".into(),
+    })?;
+    validate(&delib)?;
+    Ok(delib)
+}
+
+fn require_delib(
+    delib: &mut Option<Deliberation>,
+    line_no: usize,
+) -> Result<&mut Deliberation, ParseError> {
