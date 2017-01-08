@@ -255,3 +255,18 @@ pub fn parse_json(contents: &str) -> Result<Deliberation, ParseError> {
                 Agent {
                     id,
                     name,
+                    weight,
+                    role,
+                },
+            );
+        }
+    }
+
+    if let Some(claims) = root.get("claims").and_then(Json::as_array) {
+        for c in claims {
+            let id = str_field(c, "id").ok_or_else(|| field_err("claim.id"))?;
+            let text = str_field(c, "text").unwrap_or_default();
+            let topic = str_field(c, "topic").unwrap_or_default();
+            delib.claims.insert(
+                id.clone(),
+                Claim {
