@@ -270,3 +270,17 @@ pub fn parse_json(contents: &str) -> Result<Deliberation, ParseError> {
             delib.claims.insert(
                 id.clone(),
                 Claim {
+                    id,
+                    text,
+                    topic,
+                    normalized: String::new(),
+                },
+            );
+        }
+    }
+
+    if let Some(positions) = root.get("positions").and_then(Json::as_array) {
+        for p in positions {
+            let agent_id = str_field(p, "agent").ok_or_else(|| field_err("position.agent"))?;
+            let claim_id = str_field(p, "claim").ok_or_else(|| field_err("position.claim"))?;
+            let stance_token = str_field(p, "stance").unwrap_or_default();
