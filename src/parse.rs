@@ -299,3 +299,18 @@ pub fn parse_json(contents: &str) -> Result<Deliberation, ParseError> {
                 }
             }
             delib.positions.push(Position {
+                agent_id,
+                claim_id,
+                stance,
+                confidence,
+                citations,
+                note,
+            });
+        }
+    }
+
+    validate(&delib)?;
+    Ok(delib)
+}
+
+fn str_field(value: &Json, key: &str) -> Option<String> {
