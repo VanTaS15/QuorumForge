@@ -70,3 +70,23 @@ impl Json {
         match self {
             Json::Bool(b) => Some(*b),
             _ => None,
+        }
+    }
+}
+
+/// An error produced while parsing JSON text.
+#[derive(Debug, Clone, PartialEq)]
+pub struct JsonError {
+    pub message: String,
+    pub position: usize,
+}
+
+impl fmt::Display for JsonError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "JSON error at byte {}: {}", self.position, self.message)
+    }
+}
+
+impl std::error::Error for JsonError {}
+
+/// Parse a UTF-8 JSON document into a [`Json`] value.
