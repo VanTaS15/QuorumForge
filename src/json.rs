@@ -131,3 +131,24 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_value(&mut self) -> Result<Json, JsonError> {
+        self.skip_ws();
+        match self.peek() {
+            Some(b'{') => self.parse_object(),
+            Some(b'[') => self.parse_array(),
+            Some(b'"') => Ok(Json::Str(self.parse_string()?)),
+            Some(b't') | Some(b'f') => self.parse_bool(),
+            Some(b'n') => self.parse_null(),
+            Some(c) if c == b'-' || c.is_ascii_digit() => self.parse_number(),
+            Some(_) => Err(self.err("unexpected character")),
+            None => Err(self.err("unexpected end of input")),
+        }
+    }
+
+    fn parse_object(&mut self) -> Result<Json, JsonError> {
+        self.pos += 1; // consume '{'
+        let mut entries: Vec<(String, Json)> = Vec::new();
+        self.skip_ws();
+        if self.peek() == Some(b'}') {
+            self.pos += 1;
+            return Ok(Json::Obj(entries));
