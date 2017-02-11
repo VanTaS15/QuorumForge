@@ -315,3 +315,23 @@ impl<'a> Parser<'a> {
         } else {
             Err(self.err("invalid literal"))
         }
+    }
+
+    fn parse_null(&mut self) -> Result<Json, JsonError> {
+        if self.bytes[self.pos..].starts_with(b"null") {
+            self.pos += 4;
+            Ok(Json::Null)
+        } else {
+            Err(self.err("invalid literal"))
+        }
+    }
+
+    fn parse_number(&mut self) -> Result<Json, JsonError> {
+        let start = self.pos;
+        if self.peek() == Some(b'-') {
+            self.pos += 1;
+        }
+        while let Some(c) = self.peek() {
+            if c.is_ascii_digit() {
+                self.pos += 1;
+            } else {
