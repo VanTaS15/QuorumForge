@@ -376,3 +376,23 @@ fn utf8_len(first: u8) -> usize {
         2
     } else if first >> 4 == 0b1110 {
         3
+    } else {
+        4
+    }
+}
+
+/// Serialise a [`Json`] value to a compact string.
+pub fn to_string(value: &Json) -> String {
+    let mut out = String::new();
+    write_value(&mut out, value, None, 0);
+    out
+}
+
+/// Serialise a [`Json`] value to a pretty-printed string with two-space indent.
+pub fn to_string_pretty(value: &Json) -> String {
+    let mut out = String::new();
+    write_value(&mut out, value, Some(2), 0);
+    out
+}
+
+fn write_value(out: &mut String, value: &Json, indent: Option<usize>, depth: usize) {
