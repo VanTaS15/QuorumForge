@@ -335,3 +335,23 @@ impl<'a> Parser<'a> {
             if c.is_ascii_digit() {
                 self.pos += 1;
             } else {
+                break;
+            }
+        }
+        if self.peek() == Some(b'.') {
+            self.pos += 1;
+            while let Some(c) = self.peek() {
+                if c.is_ascii_digit() {
+                    self.pos += 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        if matches!(self.peek(), Some(b'e') | Some(b'E')) {
+            self.pos += 1;
+            if matches!(self.peek(), Some(b'+') | Some(b'-')) {
+                self.pos += 1;
+            }
+            while let Some(c) = self.peek() {
+                if c.is_ascii_digit() {
