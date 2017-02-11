@@ -355,3 +355,24 @@ impl<'a> Parser<'a> {
             }
             while let Some(c) = self.peek() {
                 if c.is_ascii_digit() {
+                    self.pos += 1;
+                } else {
+                    break;
+                }
+            }
+        }
+        let text = std::str::from_utf8(&self.bytes[start..self.pos])
+            .map_err(|_| self.err("invalid number bytes"))?;
+        text.parse::<f64>()
+            .map(Json::Num)
+            .map_err(|_| self.err("malformed number"))
+    }
+}
+
+fn utf8_len(first: u8) -> usize {
+    if first < 0x80 {
+        1
+    } else if first >> 5 == 0b110 {
+        2
+    } else if first >> 4 == 0b1110 {
+        3
