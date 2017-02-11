@@ -396,3 +396,24 @@ pub fn to_string_pretty(value: &Json) -> String {
 }
 
 fn write_value(out: &mut String, value: &Json, indent: Option<usize>, depth: usize) {
+    match value {
+        Json::Null => out.push_str("null"),
+        Json::Bool(true) => out.push_str("true"),
+        Json::Bool(false) => out.push_str("false"),
+        Json::Num(n) => out.push_str(&format_number(*n)),
+        Json::Str(s) => write_string(out, s),
+        Json::Arr(items) => {
+            if items.is_empty() {
+                out.push_str("[]");
+                return;
+            }
+            out.push('[');
+            for (i, item) in items.iter().enumerate() {
+                if i > 0 {
+                    out.push(',');
+                }
+                newline_indent(out, indent, depth + 1);
+                write_value(out, item, indent, depth + 1);
+            }
+            newline_indent(out, indent, depth);
+            out.push(']');
