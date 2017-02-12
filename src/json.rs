@@ -437,3 +437,23 @@ fn write_value(out: &mut String, value: &Json, indent: Option<usize>, depth: usi
                 write_value(out, val, indent, depth + 1);
             }
             newline_indent(out, indent, depth);
+            out.push('}');
+        }
+    }
+}
+
+fn newline_indent(out: &mut String, indent: Option<usize>, depth: usize) {
+    if let Some(width) = indent {
+        out.push('\n');
+        for _ in 0..(width * depth) {
+            out.push(' ');
+        }
+    }
+}
+
+fn write_string(out: &mut String, s: &str) {
+    out.push('"');
+    for ch in s.chars() {
+        match ch {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
