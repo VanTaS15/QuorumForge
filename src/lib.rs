@@ -17,3 +17,9 @@
 //!   evidence file            Deliberation           Adjudication
 //!  (.qf or .json)  --parse-->  (model)   --adjudicate-->  (verdicts)
 //!                                 |                            |
+//!                             normalize                    report /
+//!                              claims                       bundle
+//! ```
+//!
+//! ## Example
+//!
