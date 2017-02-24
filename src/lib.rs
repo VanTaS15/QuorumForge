@@ -36,3 +36,9 @@
 //! ";
 //! let mut delib = parse::parse_lines(src).unwrap();
 //! normalize::normalize_deliberation(&mut delib);
+//! let adj = adjudicate::adjudicate(&delib, &adjudicate::Policy::default());
+//! let verdict = &adj.verdicts["c1"];
+//! assert!(verdict.support_mass > verdict.contradiction_mass);
+//! ```
+
+pub mod adjudicate;
