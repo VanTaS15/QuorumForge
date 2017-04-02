@@ -141,3 +141,17 @@ pub struct Verdict {
     /// Number of distinct citations attached to any position on this claim.
     pub citation_count: usize,
     /// Agent ids on the winning side, sorted, for the report's roster.
+    pub majority_agents: Vec<String>,
+    /// Agent ids on the losing side, sorted.
+    pub minority_agents: Vec<String>,
+}
+
+/// The full result of adjudicating a deliberation.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Adjudication {
+    pub deliberation_id: String,
+    pub question: String,
+    pub policy: Policy,
+    /// Verdicts keyed by claim id (ordered) for stable iteration.
+    pub verdicts: BTreeMap<String, Verdict>,
+    /// Count of each outcome, for headline summaries.
