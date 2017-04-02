@@ -85,3 +85,17 @@ impl Policy {
                 self.minimum_mass
             ));
         }
+        Ok(())
+    }
+}
+
+/// The classification of a single claim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Outcome {
+    /// Strong, low-dissent agreement. See [`Verdict::affirmed`] for direction.
+    Consensus,
+    /// Meaningful weight on both sides; the council is genuinely divided.
+    Contested,
+    /// Leaning but below the consensus bar without qualifying as contested.
+    Split,
+    /// Too little decisive weight to conclude anything.
