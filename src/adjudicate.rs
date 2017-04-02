@@ -127,3 +127,17 @@ pub struct Verdict {
     /// Sum of contradiction vote magnitudes.
     pub contradiction_mass: f64,
     /// `support_mass + contradiction_mass`.
+    pub decisive_mass: f64,
+    /// `(support_mass - contradiction_mass) / decisive_mass`, or `0` if no mass.
+    pub polarity: f64,
+    /// Losing-side fraction of decisive mass in `[0, 0.5]`.
+    pub dissent_ratio: f64,
+    /// Count of supporting positions (non-abstaining).
+    pub supporters: usize,
+    /// Count of contradicting positions.
+    pub dissenters: usize,
+    /// Count of abstentions recorded.
+    pub abstentions: usize,
+    /// Number of distinct citations attached to any position on this claim.
+    pub citation_count: usize,
+    /// Agent ids on the winning side, sorted, for the report's roster.
