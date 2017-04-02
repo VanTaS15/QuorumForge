@@ -99,3 +99,17 @@ pub enum Outcome {
     /// Leaning but below the consensus bar without qualifying as contested.
     Split,
     /// Too little decisive weight to conclude anything.
+    Unsupported,
+}
+
+impl Outcome {
+    /// A stable lowercase token for serialisation.
+    pub fn as_token(self) -> &'static str {
+        match self {
+            Outcome::Consensus => "consensus",
+            Outcome::Contested => "contested",
+            Outcome::Split => "split",
+            Outcome::Unsupported => "unsupported",
+        }
+    }
+}
