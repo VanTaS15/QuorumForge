@@ -119,3 +119,15 @@ pub fn cluster_by_normalized(delib: &Deliberation) -> BTreeMap<String, Vec<Strin
     let mut clusters: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for claim in delib.claims.values() {
         let key = if claim.normalized.is_empty() {
+            normalize_text(&claim.text)
+        } else {
+            claim.normalized.clone()
+        };
+        clusters.entry(key).or_default().push(claim.id.clone());
+    }
+    for ids in clusters.values_mut() {
+        ids.sort();
+    }
+    clusters
+}
+
