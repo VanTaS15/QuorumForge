@@ -73,3 +73,15 @@ pub fn normalize_text(text: &str) -> String {
     //    "isn't" and "is not" normalise together.
     let expansions: &[(&str, &str)] = &[
         ("isn't", "is not"),
+        ("aren't", "are not"),
+        ("wasn't", "was not"),
+        ("weren't", "were not"),
+        ("doesn't", "does not"),
+        ("don't", "do not"),
+        ("didn't", "did not"),
+        ("can't", "cannot"),
+        ("won't", "will not"),
+        ("shouldn't", "should not"),
+        ("couldn't", "could not"),
+        ("wouldn't", "would not"),
+        ("it's", "it is"),
