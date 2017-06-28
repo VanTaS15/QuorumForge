@@ -85,3 +85,14 @@ pub fn normalize_text(text: &str) -> String {
         ("couldn't", "could not"),
         ("wouldn't", "would not"),
         ("it's", "it is"),
+    ];
+    for (from, to) in expansions {
+        if joined.contains(from) {
+            joined = joined.replace(from, to);
+        }
+    }
+
+    // 5. Re-collapse any whitespace introduced by replacement.
+    joined.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
