@@ -96,3 +96,15 @@ pub fn normalize_text(text: &str) -> String {
     joined.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// Populate the `normalized` field of every claim in a deliberation.
+pub fn normalize_deliberation(delib: &mut Deliberation) {
+    let updates: Vec<(String, String)> = delib
+        .claims
+        .values()
+        .map(|c| (c.id.clone(), normalize_text(&c.text)))
+        .collect();
+    for (id, normalized) in updates {
+        if let Some(claim) = delib.claims.get_mut(&id) {
+            claim.normalized = normalized;
+        }
+    }
