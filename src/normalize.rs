@@ -108,3 +108,14 @@ pub fn normalize_deliberation(delib: &mut Deliberation) {
             claim.normalized = normalized;
         }
     }
+}
+
+/// Group claim ids by their normalized text. Claims that share a normalized
+/// form are treated as the same proposition for consensus purposes.
+///
+/// The returned map is ordered by normalized text; each value lists claim ids
+/// in sorted order, so the grouping is fully deterministic.
+pub fn cluster_by_normalized(delib: &Deliberation) -> BTreeMap<String, Vec<String>> {
+    let mut clusters: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for claim in delib.claims.values() {
+        let key = if claim.normalized.is_empty() {
