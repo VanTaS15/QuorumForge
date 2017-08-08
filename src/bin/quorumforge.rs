@@ -1,0 +1,89 @@
+//! The `quorumforge` command-line interface.
+//!
+//! Usage:
+//!
+//! ```text
+//! quorumforge <command> [options] <evidence-file>
+//!
+//! Commands:
+//!   adjudicate   Parse, normalize, and print a text or JSON verdict report.
+//!   bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
+//!   verify       Re-derive a bundle's digest and confirm it is intact.
+//!   inspect      Print the parsed, normalized deliberation as JSON.
+//!   help         Show this message.
+//!
+//! Options:
+//!   --format <text|json>     Report format for `adjudicate` (default: text).
+//!   --consensus <0..1>       Consensus polarity threshold (default: 0.66).
+//!   --dissent <0..1>         Dissent ceiling (default: 0.34).
+//!   --min-mass <n>           Minimum decisive mass to escape unsupported.
+//!   -o, --output <path>      Write output to a file instead of stdout.
+//!   -                        Read evidence from stdin (format assumed .qf
+//!                            unless --json is given).
+//!   --json                   Treat stdin/ambiguous input as JSON.
+//! ```
+//!
+//! Exit codes: `0` success, `2` usage error, `3` parse/validation error,
+//! `4` verify mismatch.
+
+use quorumforge::adjudicate::{adjudicate, Policy};
+use quorumforge::{bundle, json, normalize, parse, report};
+use std::io::{Read, Write};
+use std::process::ExitCode;
+
+const USAGE: &str = "\
+quorumforge — multi-agent evidence adjudication engine
+
+USAGE:
+    quorumforge <command> [options] <evidence-file | ->
+
+COMMANDS:
+    adjudicate   Parse, normalize, and print a verdict report (text or JSON).
+    bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
+    verify       Re-derive a bundle's digest from its body and confirm it.
+    inspect      Print the parsed, normalized deliberation as JSON.
+    help         Show this message.
+
+OPTIONS:
+    --format <text|json>   Report format for `adjudicate` (default: text).
+    --consensus <0..1>     Consensus polarity threshold (default: 0.66).
+    --dissent <0..1>       Dissent ceiling (default: 0.34).
+    --min-mass <n>         Minimum decisive mass to escape unsupported.
+    -o, --output <path>    Write output to a file instead of stdout.
+    --json                 Treat stdin / extensionless input as JSON.
+
+EXAMPLES:
+    quorumforge adjudicate samples/cache-coherence.qf
+    quorumforge adjudicate --format json samples/vaccine-efficacy.json
+    quorumforge bundle samples/cache-coherence.qf -o bundle.json
+    quorumforge verify bundle.json
+    cat samples/cache-coherence.qf | quorumforge adjudicate -
+";
+
+fn main() -> ExitCode {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match run(&args) {
+        Ok(code) => code,
+        Err(err) => {
+            eprintln!("quorumforge: {}", err.message);
+            err.code
+        }
+    }
+}
+
+struct CliError {
+    message: String,
+    code: ExitCode,
+}
+
+impl CliError {
+    fn usage(msg: impl Into<String>) -> Self {
+        CliError {
+            message: msg.into(),
+            code: ExitCode::from(2),
+        }
+    }
+    fn parse(msg: impl Into<String>) -> Self {
+        CliError {
+            message: msg.into(),
+            code: ExitCode::from(3),
