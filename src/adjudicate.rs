@@ -1,0 +1,161 @@
+//! The adjudication engine.
+//!
+//! Given a normalized [`Deliberation`], the engine computes a [`Verdict`] for
+//! every claim and rolls those up into a [`Adjudication`] for the whole
+//! deliberation. The scoring model is deliberately simple and fully explained
+//! here so that any verdict can be re-derived by hand.
+//!
+//! ## Scoring
+//!
+//! For a claim `c`, each non-abstaining position contributes a *signed vote*:
+//!
+//! ```text
+//! vote = stance.sign() * agent_weight * confidence
+//! ```
+//!
+//! where `stance.sign()` is `+1` for support and `-1` for contradiction. Let:
+//!
+//! * `S` = sum of support votes (a non-negative number)
+//! * `C` = sum of the magnitudes of contradiction votes (non-negative)
+//! * `mass` = `S + C` (total decisive weight on the claim)
+//!
+//! The **net score** is `S - C`, and the **polarity** is `net / mass` in
+//! `[-1, 1]`. A claim with no decisive positions has `mass == 0` and is
+//! classified `Unsupported`.
+//!
+//! ## Verdict classification
+//!
+//! Two thresholds govern classification, both configurable:
+//!
+//! * `consensus_threshold` (default `0.66`): if `|polarity| >=` this and the
+//!   dissent ratio is below `dissent_ceiling`, the claim is a
+//!   [`Outcome::Consensus`] (affirmed if polarity is positive, negated if
+//!   negative).
+//! * `dissent_ceiling` (default `0.34`): the fraction of decisive mass on the
+//!   losing side. When both sides carry meaningful weight, the claim is
+//!   [`Outcome::Contested`].
+//!
+//! Claims that clear neither bar land in [`Outcome::Split`]. This gives four
+//! mutually exclusive outcomes: `Consensus`, `Contested`, `Split`, and
+//! `Unsupported`.
+
+use crate::model::{Deliberation, Stance};
+use std::collections::BTreeMap;
+
+/// Tunable thresholds for the classifier. Defaults are chosen so that a
+/// two-thirds supermajority with limited dissent reads as consensus.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Policy {
+    /// Minimum absolute polarity for a `Consensus` outcome.
+    pub consensus_threshold: f64,
+    /// Maximum losing-side mass fraction tolerated within a `Consensus`.
+    pub dissent_ceiling: f64,
+    /// Minimum decisive mass required to escape `Unsupported`.
+    pub minimum_mass: f64,
+}
+
+impl Default for Policy {
+    fn default() -> Self {
+        Policy {
+            consensus_threshold: 0.66,
+            dissent_ceiling: 0.34,
+            minimum_mass: 1e-9,
+        }
+    }
+}
+
+impl Policy {
+    /// Validate a policy, returning a human-readable error on nonsense inputs.
+    pub fn validate(&self) -> Result<(), String> {
+        if !self.consensus_threshold.is_finite() || !(0.0..=1.0).contains(&self.consensus_threshold) {
+            return Err(format!(
+                "consensus_threshold must be in [0,1], got {}",
+                self.consensus_threshold
+            ));
+        }
+        if !self.dissent_ceiling.is_finite() || !(0.0..=1.0).contains(&self.dissent_ceiling) {
+            return Err(format!(
+                "dissent_ceiling must be in [0,1], got {}",
+                self.dissent_ceiling
+            ));
+        }
+        if !self.minimum_mass.is_finite() || self.minimum_mass < 0.0 {
+            return Err(format!(
+                "minimum_mass must be non-negative, got {}",
+                self.minimum_mass
+            ));
+        }
+        Ok(())
+    }
+}
+
+/// The classification of a single claim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Outcome {
+    /// Strong, low-dissent agreement. See [`Verdict::affirmed`] for direction.
+    Consensus,
+    /// Meaningful weight on both sides; the council is genuinely divided.
+    Contested,
+    /// Leaning but below the consensus bar without qualifying as contested.
+    Split,
+    /// Too little decisive weight to conclude anything.
+    Unsupported,
+}
+
+impl Outcome {
+    /// A stable lowercase token for serialisation.
+    pub fn as_token(self) -> &'static str {
+        match self {
+            Outcome::Consensus => "consensus",
+            Outcome::Contested => "contested",
+            Outcome::Split => "split",
+            Outcome::Unsupported => "unsupported",
+        }
+    }
+}
+
+/// A per-claim verdict with all intermediate quantities retained for auditing.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Verdict {
+    pub claim_id: String,
+    pub normalized: String,
+    pub outcome: Outcome,
+    /// `true` when a consensus/split leans toward the claim being true.
+    pub affirmed: bool,
+    /// Sum of support votes.
+    pub support_mass: f64,
+    /// Sum of contradiction vote magnitudes.
+    pub contradiction_mass: f64,
+    /// `support_mass + contradiction_mass`.
+    pub decisive_mass: f64,
+    /// `(support_mass - contradiction_mass) / decisive_mass`, or `0` if no mass.
+    pub polarity: f64,
+    /// Losing-side fraction of decisive mass in `[0, 0.5]`.
+    pub dissent_ratio: f64,
+    /// Count of supporting positions (non-abstaining).
+    pub supporters: usize,
+    /// Count of contradicting positions.
+    pub dissenters: usize,
+    /// Count of abstentions recorded.
+    pub abstentions: usize,
+    /// Number of distinct citations attached to any position on this claim.
+    pub citation_count: usize,
+    /// Agent ids on the winning side, sorted, for the report's roster.
+    pub majority_agents: Vec<String>,
+    /// Agent ids on the losing side, sorted.
+    pub minority_agents: Vec<String>,
+}
+
+/// The full result of adjudicating a deliberation.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Adjudication {
+    pub deliberation_id: String,
+    pub question: String,
+    pub policy: Policy,
+    /// Verdicts keyed by claim id (ordered) for stable iteration.
+    pub verdicts: BTreeMap<String, Verdict>,
+    /// Count of each outcome, for headline summaries.
+    pub tally: Tally,
+    /// A single scalar in `[0,1]` summarising how settled the deliberation is.
+    pub cohesion: f64,
+}
