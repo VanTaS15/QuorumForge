@@ -206,3 +206,108 @@ impl<'a> Parser<'a> {
                     self.pos += 1;
                     break;
                 }
+                _ => return Err(self.err("expected ',' or ']' in array")),
+            }
+        }
+        Ok(Json::Arr(items))
+    }
+
+    fn parse_string(&mut self) -> Result<String, JsonError> {
+        self.pos += 1; // consume opening quote
+        let mut out = String::new();
+        loop {
+            match self.peek() {
+                None => return Err(self.err("unterminated string")),
+                Some(b'"') => {
+                    self.pos += 1;
+                    break;
+                }
+                Some(b'\\') => {
+                    self.pos += 1;
+                    match self.peek() {
+                        Some(b'"') => out.push('"'),
+                        Some(b'\\') => out.push('\\'),
+                        Some(b'/') => out.push('/'),
+                        Some(b'n') => out.push('\n'),
+                        Some(b't') => out.push('\t'),
+                        Some(b'r') => out.push('\r'),
+                        Some(b'b') => out.push('\u{0008}'),
+                        Some(b'f') => out.push('\u{000C}'),
+                        Some(b'u') => {
+                            let cp = self.parse_hex4()?;
+                            // After parse_hex4, pos points just past the four
+                            // hex digits (i.e. at whatever follows the escape).
+                            // Handle surrogate pairs for characters outside the BMP.
+                            if (0xD800..=0xDBFF).contains(&cp) {
+                                if self.bytes.get(self.pos) == Some(&b'\\')
+                                    && self.bytes.get(self.pos + 1) == Some(&b'u')
+                                {
+                                    self.pos += 1; // consume the '\\'; parse_hex4 eats 'u'+digits
+                                    let low = self.parse_hex4()?;
+                                    let combined = 0x10000
+                                        + (((cp - 0xD800) as u32) << 10)
+                                        + (low - 0xDC00) as u32;
+                                    match char::from_u32(combined) {
+                                        Some(ch) => out.push(ch),
+                                        None => return Err(self.err("invalid surrogate pair")),
+                                    }
+                                } else {
+                                    return Err(self.err("lone high surrogate"));
+                                }
+                            } else {
+                                match char::from_u32(cp as u32) {
+                                    Some(ch) => out.push(ch),
+                                    None => return Err(self.err("invalid unicode escape")),
+                                }
+                            }
+                            continue;
+                        }
+                        _ => return Err(self.err("invalid escape sequence")),
+                    }
+                    self.pos += 1;
+                }
+                Some(_) => {
+                    // Copy a full UTF-8 code point.
+                    let start = self.pos;
+                    let len = utf8_len(self.bytes[self.pos]);
+                    if start + len > self.bytes.len() {
+                        return Err(self.err("truncated UTF-8 sequence"));
+                    }
+                    match std::str::from_utf8(&self.bytes[start..start + len]) {
+                        Ok(s) => out.push_str(s),
+                        Err(_) => return Err(self.err("invalid UTF-8 in string")),
+                    }
+                    self.pos += len;
+                }
+            }
+        }
+        Ok(out)
+    }
+
+    fn parse_hex4(&mut self) -> Result<u16, JsonError> {
+        self.pos += 1; // consume 'u'
+        if self.pos + 4 > self.bytes.len() {
+            return Err(self.err("truncated \\u escape"));
+        }
+        let mut value: u16 = 0;
+        for _ in 0..4 {
+            let digit = self.bytes[self.pos];
+            let nibble = match digit {
+                b'0'..=b'9' => digit - b'0',
+                b'a'..=b'f' => digit - b'a' + 10,
+                b'A'..=b'F' => digit - b'A' + 10,
+                _ => return Err(self.err("invalid hex digit in \\u escape")),
+            };
+            value = value * 16 + nibble as u16;
+            self.pos += 1;
+        }
+        // pos now points just past the four hex digits.
+        Ok(value)
+    }
+
+    fn parse_bool(&mut self) -> Result<Json, JsonError> {
+        if self.bytes[self.pos..].starts_with(b"true") {
+            self.pos += 4;
+            Ok(Json::Bool(true))
+        } else if self.bytes[self.pos..].starts_with(b"false") {
+            self.pos += 5;
