@@ -58,3 +58,64 @@ pub fn normalize_text(text: &str) -> String {
             if !boundary {
                 continue;
             }
+            // A hedge may be followed by a comma or other punctuation
+            // ("arguably, ...") which should also be dropped.
+            let rest = rest.trim_start_matches(|c: char| c == ',' || c == ':' || c.is_whitespace());
+            // Only strip when a hedge is followed by more content.
+            if !rest.is_empty() {
+                joined = rest.to_string();
+                break;
+            }
+        }
+    }
+
+    // 4. Fold a few common contractions to their expanded forms so that
+    //    "isn't" and "is not" normalise together.
+    let expansions: &[(&str, &str)] = &[
+        ("isn't", "is not"),
+        ("aren't", "are not"),
+        ("wasn't", "was not"),
+        ("weren't", "were not"),
+        ("doesn't", "does not"),
+        ("don't", "do not"),
+        ("didn't", "did not"),
+        ("can't", "cannot"),
+        ("won't", "will not"),
+        ("shouldn't", "should not"),
+        ("couldn't", "could not"),
+        ("wouldn't", "would not"),
+        ("it's", "it is"),
+    ];
+    for (from, to) in expansions {
+        if joined.contains(from) {
+            joined = joined.replace(from, to);
+        }
+    }
+
+    // 5. Re-collapse any whitespace introduced by replacement.
+    joined.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Populate the `normalized` field of every claim in a deliberation.
+pub fn normalize_deliberation(delib: &mut Deliberation) {
+    let updates: Vec<(String, String)> = delib
+        .claims
+        .values()
+        .map(|c| (c.id.clone(), normalize_text(&c.text)))
+        .collect();
+    for (id, normalized) in updates {
+        if let Some(claim) = delib.claims.get_mut(&id) {
+            claim.normalized = normalized;
+        }
+    }
+}
+
+/// Group claim ids by their normalized text. Claims that share a normalized
+/// form are treated as the same proposition for consensus purposes.
+///
+/// The returned map is ordered by normalized text; each value lists claim ids
+/// in sorted order, so the grouping is fully deterministic.
+pub fn cluster_by_normalized(delib: &Deliberation) -> BTreeMap<String, Vec<String>> {
+    let mut clusters: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for claim in delib.claims.values() {
+        let key = if claim.normalized.is_empty() {
