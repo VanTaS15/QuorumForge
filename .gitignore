@@ -13,8 +13,3 @@ viewer/node_modules
 viewer/dist
 viewer/*.tsbuildinfo
 
-# Generated artifacts from example commands in the README
-/bundle.json
-/council.html
-*.report.json
-
