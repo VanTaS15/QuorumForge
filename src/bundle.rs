@@ -116,3 +116,42 @@ fn policy_json(policy: &crate::adjudicate::Policy) -> Json {
     ])
 }
 
+fn summary_json(adj: &Adjudication) -> Json {
+    json::obj(vec![
+        ("consensus", json::num(adj.tally.consensus as f64)),
+        ("contested", json::num(adj.tally.contested as f64)),
+        ("split", json::num(adj.tally.split as f64)),
+        ("unsupported", json::num(adj.tally.unsupported as f64)),
+        ("total_claims", json::num(adj.tally.total() as f64)),
+        ("cohesion", json::num(round6(adj.cohesion))),
+    ])
+}
+
+fn verdict_json(v: &Verdict) -> Json {
+    json::obj(vec![
+        ("claim", json::s(&v.claim_id)),
+        ("normalized", json::s(&v.normalized)),
+        ("outcome", json::s(v.outcome.as_token())),
+        ("affirmed", Json::Bool(v.affirmed)),
+        ("support_mass", json::num(round6(v.support_mass))),
+        (
+            "contradiction_mass",
+            json::num(round6(v.contradiction_mass)),
+        ),
+        ("decisive_mass", json::num(round6(v.decisive_mass))),
+        ("polarity", json::num(round6(v.polarity))),
+        ("dissent_ratio", json::num(round6(v.dissent_ratio))),
+        ("supporters", json::num(v.supporters as f64)),
+        ("dissenters", json::num(v.dissenters as f64)),
+        ("abstentions", json::num(v.abstentions as f64)),
+        ("citations", json::num(v.citation_count as f64)),
+        (
+            "majority_agents",
+            Json::Arr(v.majority_agents.iter().map(json::s).collect()),
+        ),
+        (
+            "minority_agents",
+            Json::Arr(v.minority_agents.iter().map(json::s).collect()),
+        ),
+    ])
+}
