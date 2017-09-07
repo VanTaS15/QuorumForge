@@ -14,3 +14,19 @@ declare const process: {
     isTTY?: boolean;
   };
   stdout: { write(text: string): boolean };
+  stderr: { write(text: string): boolean };
+};
+
+declare module "node:fs" {
+  export function readFileSync(path: string, encoding: "utf8"): string;
+  export function writeFileSync(path: string, data: string): void;
+  export function existsSync(path: string): boolean;
+}
+
+declare module "node:process" {
+  const p: typeof process;
+  export default p;
+}
+
+declare module "node:assert/strict" {
+  interface AssertStrict {
