@@ -75,3 +75,159 @@ quorumforge/
 │   ├── EVIDENCE.md           the normative input-format reference
 │   └── assets/               the two animated SVGs on this page
 ├── Cargo.toml   Makefile   LICENSE   CHANGELOG.md   .gitignore
+└── .github/workflows/ci.yml
+```
+
+Two languages, one contract: the Rust core emits a `quorumforge.report.v1` JSON
+document, and the TypeScript viewer consumes exactly that schema. Neither side
+pulls in a runtime dependency — the Rust crate is standard-library-only, and the
+viewer's sole `devDependency` is the TypeScript compiler itself.
+
+---
+
+## Quick start
+
+You need a Rust toolchain (1.74+) for the engine and Node.js (18+) plus npm for
+the optional viewer. Nothing else.
+
+```sh
+# 1. Build and test the Rust engine.
+cargo build --release
+cargo test
+
+# 2. Adjudicate a sample deliberation as a console report.
+cargo run --release -- adjudicate samples/cache-coherence.qf
+```
+
+That last command prints something like:
+
+```text
+========================================================================
+QUORUMFORGE VERDICT  ::  cache-coherence
+Question: Is the distributed write-back cache coherent under concurrent
+          writes?
+========================================================================
+Claims: 5   Consensus: 1   Contested: 1   Split: 2   Unsupported: 1
+Council cohesion: 60.1%   Policy: consensus>=0.66, dissent<0.34
+------------------------------------------------------------------------
+[=] [c1] Writes to a single key are linearizable.
+     consensus/affirmed topic=linearizability  polarity=+1.00  mass=4.33  ...
+[!] [c2] Writes across multiple keys are linearizable.
+     contested/negated topic=linearizability  polarity=-0.24  ...
+     dissenting: ada, boro
+...
+```
+
+---
+
+## The council viewer
+
+The prism is prettiest when you let the viewer render it. Build it once, then
+pipe a JSON report straight in.
+
+```sh
+# Build the viewer (installs only the TypeScript compiler).
+cd viewer
+npm install
+npm run build
+cd ..
+
+# Pipe a JSON report from the engine into the viewer's ANSI renderer.
+cargo run --release -- adjudicate --format json samples/cache-coherence.qf \
+  | node viewer/dist/cli.js -
+
+# Or produce a standalone, self-contained HTML council page.
+cargo run --release -- adjudicate --format json samples/migration-strategy.json \
+  | node viewer/dist/cli.js --html - -o council.html
+```
+
+The console renderer draws unicode influence meters and colour-codes each
+verdict band. The HTML renderer emits a single file with **all** styling inlined
+— no remote fonts, scripts, or images — so it opens offline and can be committed
+as an artifact.
+
+```sh
+# Run the viewer's own test suite.
+cd viewer && npm test
+```
+
+---
+
+## The command-line tool
+
+```text
+quorumforge <command> [options] <evidence-file | ->
+
+COMMANDS
+  adjudicate   Parse, normalize, and print a verdict report (text or json).
+  bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
+  verify       Re-derive a bundle's digest from its body and confirm it.
+  inspect      Print the parsed, normalized deliberation as JSON.
+  help         Show usage.
+
+OPTIONS
+  --format <text|json>   Report format for `adjudicate` (default: text).
+  --consensus <0..1>     Consensus polarity threshold (default: 0.66).
+  --dissent <0..1>       Dissent ceiling (default: 0.34).
+  --min-mass <n>         Minimum decisive mass to escape unsupported.
+  -o, --output <path>    Write output to a file instead of stdout.
+  --json                 Treat stdin / extensionless input as JSON.
+```
+
+### Real invocations
+
+```sh
+# Text report from a line-oriented file.
+cargo run -- adjudicate samples/cache-coherence.qf
+
+# JSON report from a JSON deliberation.
+cargo run -- adjudicate --format json samples/migration-strategy.json
+
+# See how claim normalization collapses hedged variants.
+cargo run -- inspect samples/normalization.qf
+
+# Build a deterministic bundle and verify its integrity digest.
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
+cargo run -- verify bundle.json          # -> "digest OK: ..."
+
+# Read from stdin (format assumed .qf unless --json is given).
+cat samples/cache-coherence.qf | cargo run -- adjudicate -
+
+# Loosen the policy so a 70/30 lean reads as consensus.
+cargo run -- adjudicate --consensus 0.3 --dissent 0.5 samples/cache-coherence.qf
+```
+
+Exit codes: `0` success, `2` usage error, `3` parse/validation error, `4` a
+`verify` digest mismatch. These make QuorumForge friendly to shell pipelines and
+CI gates.
+
+---
+
+## How the prism actually bends light
+
+The scoring model is deliberately simple enough to reproduce with a pocket
+calculator. Every non-abstaining position casts a **signed vote**:
+
+```
+vote = sign(stance) · agent_weight · confidence
+```
+
+with `sign(support) = +1` and `sign(contradict) = −1`. Confidence is clamped to
+`[0, 1]` defensively. For a claim, sum the support votes into `S` and the
+contradiction magnitudes into `C`, then:
+
+```
+decisive_mass = S + C
+polarity      = (S − C) / decisive_mass       ∈ [−1, +1]
+dissent_ratio = min(S, C) / decisive_mass      ∈ [0, 0.5]
+```
+
+`polarity` is *which way* the light bends; `decisive_mass` is *how bright* the
+beam is; `dissent_ratio` is *how much* of the beam scatters the other way.
+
+<div align="center">
+<img src="docs/assets/dissent-map.svg" alt="A ring of agents around a central claim, with green support threads and red dissent threads pulsing inward" width="620" />
+</div>
+
+The classifier then reads those three numbers against a **policy** (see below):
+
