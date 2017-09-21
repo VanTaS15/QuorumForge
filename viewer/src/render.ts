@@ -166,3 +166,59 @@ function escapeHtml(text: string): string {
 export function renderHtml(report: Report): string {
   const s = report.summary;
   const verdictCards = report.verdicts
+    .map((v) => {
+      const meta = OUTCOME_META[v.outcome];
+      const hue =
+        v.outcome === "consensus"
+          ? 145
+          : v.outcome === "contested"
+            ? 5
+            : v.outcome === "split"
+              ? 45
+              : 220;
+      const dir =
+        v.outcome === "unsupported" ? "" : v.affirmed ? "affirmed" : "negated";
+      const dissent =
+        v.minority_agents.length > 0
+          ? `<div class="dissent">dissent: ${escapeHtml(
+              v.minority_agents.join(", "),
+            )}</div>`
+          : "";
+      return `      <article class="card" style="--hue:${hue}">
+        <header><span class="pill">${meta.label}${dir ? " · " + dir : ""}</span>
+          <code>${escapeHtml(v.claim)}</code></header>
+        <p class="claim">${escapeHtml(v.text)}</p>
+        <div class="meter" title="polarity ${v.polarity.toFixed(2)}">
+          <span style="width:${((v.polarity + 1) / 2) * 100}%"></span>
+        </div>
+        <dl>
+          <div><dt>polarity</dt><dd>${v.polarity.toFixed(2)}</dd></div>
+          <div><dt>mass</dt><dd>${v.decisive_mass.toFixed(2)}</dd></div>
+          <div><dt>dissent</dt><dd>${(v.dissent_ratio * 100).toFixed(0)}%</dd></div>
+          <div><dt>cites</dt><dd>${v.citations}</dd></div>
+        </dl>${dissent}
+      </article>`;
+    })
+    .join("\n");
+
+  const roster = report.agents
+    .map(
+      (a) =>
+        `        <li><b>${escapeHtml(a.id)}</b> <span>${escapeHtml(
+          a.name,
+        )} · ${escapeHtml(a.role || "—")}</span>
+          <div class="bar"><span style="width:${Math.min(
+            100,
+            (a.influence / Math.max(1e-9, ...report.agents.map((x) => x.influence))) *
+              100,
+          )}%"></span></div>
+          <em>${a.influence.toFixed(2)}</em></li>`,
+    )
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuorumForge · ${escapeHtml(report.deliberation_id)}</title>
