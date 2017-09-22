@@ -64,3 +64,16 @@ pub fn render_text(delib: &Deliberation, adj: &Adjudication) -> String {
         } else if verdict.affirmed {
             "affirmed".to_string()
         } else {
+            "negated".to_string()
+        };
+        out.push_str(&format!(
+            "{} [{}] {}\n",
+            glyph,
+            verdict.claim_id,
+            wrap(text, 58, "         "),
+        ));
+        let topic_label = if topic.is_empty() {
+            String::new()
+        } else {
+            format!("topic={}  ", topic)
+        };
