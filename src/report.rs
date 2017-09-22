@@ -143,3 +143,16 @@ fn agent_influence(delib: &Deliberation, adj: &Adjudication) -> Vec<(String, f64
 }
 
 /// Wrap `text` to `width` columns, indenting continuation lines with `indent`.
+fn wrap(text: &str, width: usize, indent: &str) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    let mut current = String::new();
+    for word in text.split_whitespace() {
+        if current.is_empty() {
+            current.push_str(word);
+        } else if current.len() + 1 + word.len() > width {
+            lines.push(current.clone());
+            current.clear();
+            current.push_str(word);
+        } else {
+            current.push(' ');
+            current.push_str(word);
