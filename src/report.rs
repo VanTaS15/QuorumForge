@@ -77,3 +77,16 @@ pub fn render_text(delib: &Deliberation, adj: &Adjudication) -> String {
         } else {
             format!("topic={}  ", topic)
         };
+        out.push_str(&format!(
+            "     {:<11} {}polarity={:+.2}  mass={:.2}  dissent={:.0}%  cites={}\n",
+            format!("{}/{}", verdict.outcome.as_token(), direction),
+            topic_label,
+            verdict.polarity,
+            verdict.decisive_mass,
+            verdict.dissent_ratio * 100.0,
+            verdict.citation_count,
+        ));
+        if !verdict.minority_agents.is_empty() {
+            out.push_str(&format!(
+                "     dissenting: {}\n",
+                verdict.minority_agents.join(", ")
