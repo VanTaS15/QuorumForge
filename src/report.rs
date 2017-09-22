@@ -130,3 +130,16 @@ fn agent_influence(delib: &Deliberation, adj: &Adjudication) -> Vec<(String, f64
         scores.insert(agent_id.clone(), 0.0);
     }
     for pos in &delib.positions {
+        if pos.stance == crate::model::Stance::Abstain {
+            continue;
+        }
+        let weight = delib.agent_weight(&pos.agent_id);
+        let conf = pos.confidence.clamp(0.0, 1.0);
+        *scores.entry(pos.agent_id.clone()).or_insert(0.0) += weight * conf;
+    }
+    // Suppress unused warning for adj; kept in signature for symmetry/testability.
+    let _ = adj;
+    scores.into_iter().collect()
+}
+
+/// Wrap `text` to `width` columns, indenting continuation lines with `indent`.
