@@ -90,3 +90,16 @@ pub fn render_text(delib: &Deliberation, adj: &Adjudication) -> String {
             out.push_str(&format!(
                 "     dissenting: {}\n",
                 verdict.minority_agents.join(", ")
+            ));
+        }
+    }
+
+    out.push_str(&thin);
+    out.push('\n');
+
+    // Per-agent influence roster.
+    out.push_str("Agent influence (weighted decisive votes cast):\n");
+    let influence = agent_influence(delib, adj);
+    for (agent_id, score) in &influence {
+        let name = delib
+            .agents
