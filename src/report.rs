@@ -169,3 +169,16 @@ pub fn render_json(delib: &Deliberation, adj: &Adjudication) -> String {
     let verdicts: Vec<Json> = adj
         .verdicts
         .values()
+        .map(|v| verdict_report_json(delib, v))
+        .collect();
+
+    let agents: Vec<Json> = {
+        let influence: BTreeMap<String, f64> = agent_influence(delib, adj).into_iter().collect();
+        delib
+            .agents
+            .values()
+            .map(|a| {
+                json::obj(vec![
+                    ("id", json::s(&a.id)),
+                    ("name", json::s(&a.name)),
+                    ("role", json::s(&a.role)),
