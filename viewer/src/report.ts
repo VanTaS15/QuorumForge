@@ -40,24 +40,3 @@ export interface ReportSummary {
   unsupported: number;
   cohesion: number;
 }
-
-export interface Policy {
-  consensus_threshold: number;
-  dissent_ceiling: number;
-  minimum_mass: number;
-}
-
-export interface Report {
-  schema: string;
-  deliberation_id: string;
-  question: string;
-  summary: ReportSummary;
-  policy: Policy;
-  agents: AgentView[];
-  verdicts: VerdictView[];
-}
-
-/**
- * Validate an untyped parsed value as a QuorumForge report. Throws a
- * descriptive error rather than returning a partially-typed object, so the CLI
- * can fail loudly on malformed input.
