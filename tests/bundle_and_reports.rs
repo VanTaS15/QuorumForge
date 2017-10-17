@@ -36,3 +36,80 @@ fn bundle_digest_survives_reparse() {
     let out = bundle::to_json(&b);
     let root = quorumforge::json::parse(&out).unwrap();
     let entries = root.as_object().unwrap();
+    let stored = root.get("digest").unwrap().as_str().unwrap();
+    let body: Vec<(String, quorumforge::json::Json)> = entries
+        .iter()
+        .filter(|(k, _)| k != "digest")
+        .cloned()
+        .collect();
+    let recomputed = bundle::fnv1a_hex(
+        quorumforge::json::to_string(&quorumforge::json::Json::Obj(body)).as_bytes(),
+    );
+    assert_eq!(recomputed, stored);
+}
+
+#[test]
+fn tampering_breaks_the_digest() {
+    let (d, adj) = run("cache.qf", CACHE);
+    let mut b = bundle::build(&d, &adj);
+    // Flip one agent's weight; the stored digest should no longer match.
+    if let Some(a) = b.deliberation.agents.get_mut("ada") {
+        a.weight += 1.0;
+    }
+    assert!(
+        !bundle::verify(&b),
+        "mutating the body must invalidate the digest"
+    );
+}
+
+#[test]
+fn cache_sample_yields_expected_outcomes() {
+    let (_d, adj) = run("cache.qf", CACHE);
+    assert_eq!(adj.verdicts["c1"].outcome, Outcome::Consensus);
+    assert!(adj.verdicts["c1"].affirmed);
+    assert_eq!(adj.verdicts["c2"].outcome, Outcome::Contested);
+    assert_eq!(adj.verdicts["c5"].outcome, Outcome::Unsupported);
+    // The sample is designed to exercise all four outcomes.
+    assert!(adj.tally.consensus >= 1);
+    assert!(adj.tally.contested >= 1);
+    assert!(adj.tally.split >= 1);
+    assert!(adj.tally.unsupported >= 1);
+}
+
+#[test]
+fn migration_sample_parses_and_adjudicates() {
+    let (d, adj) = run("migration.json", MIGRATION);
+    assert_eq!(d.id, "migration-strategy");
+    assert_eq!(d.agents.len(), 5);
+    assert_eq!(d.claims.len(), 6);
+    assert_eq!(adj.tally.total(), 6);
+    // m4 (independent shipping) has four supporters and no dissent.
+    assert_eq!(adj.verdicts["m4"].outcome, Outcome::Consensus);
+    assert!(adj.verdicts["m4"].affirmed);
+    // m6 is only abstentions.
+    assert_eq!(adj.verdicts["m6"].outcome, Outcome::Unsupported);
+}
+
+#[test]
+fn normalization_collapses_hedged_variants() {
+    let (d, _adj) = run("norm.qf", NORM);
+    let n1 = &d.claims["n1"].normalized;
+    let n2 = &d.claims["n2"].normalized;
+    let n3 = &d.claims["n3"].normalized;
+    assert_eq!(n1, n2);
+    assert_eq!(n2, n3);
+    assert_eq!(n1, "the p99 latency is under 200ms");
+}
+
+#[test]
+fn normalize_text_expands_contractions() {
+    assert_eq!(normalize_text("It isn't broken."), "it is not broken");
+    assert_eq!(normalize_text("We can't ship."), "we cannot ship");
+}
+
+#[test]
+fn normalize_text_strips_leading_hedges() {
+    assert_eq!(normalize_text("I think that X holds"), "x holds");
+    assert_eq!(normalize_text("Arguably, X holds"), "x holds");
+    assert_eq!(normalize_text("Clearly X holds!"), "x holds");
+}

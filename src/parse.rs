@@ -214,3 +214,75 @@ fn require_delib(
     delib.as_mut().ok_or_else(|| ParseError {
         line: line_no,
         message: "record appeared before the 'delib' header".into(),
+    })
+}
+
+fn parse_f64(
+    field: Option<&String>,
+    default: f64,
+    line_no: usize,
+    what: &str,
+) -> Result<f64, ParseError> {
+    match field {
+        None => Ok(default),
+        Some(s) if s.is_empty() => Ok(default),
+        Some(s) => s.parse::<f64>().map_err(|_| ParseError {
+            line: line_no,
+            message: format!("invalid {} value '{}'", what, s),
+        }),
+    }
+}
+
+/// Parse the JSON evidence format.
+pub fn parse_json(contents: &str) -> Result<Deliberation, ParseError> {
+    let root = json::parse(contents).map_err(|e| ParseError {
+        line: 0,
+        message: e.message,
+    })?;
+
+    let id = str_field(&root, "id").unwrap_or_else(|| "unnamed".to_string());
+    let question = str_field(&root, "question").unwrap_or_default();
+    let mut delib = Deliberation::new(id, question);
+
+    if let Some(agents) = root.get("agents").and_then(Json::as_array) {
+        for a in agents {
+            let id = str_field(a, "id").ok_or_else(|| field_err("agent.id"))?;
+            let name = str_field(a, "name").unwrap_or_else(|| id.clone());
+            let weight = a.get("weight").and_then(Json::as_f64).unwrap_or(1.0);
+            let role = str_field(a, "role").unwrap_or_default();
+            delib.agents.insert(
+                id.clone(),
+                Agent {
+                    id,
+                    name,
+                    weight,
+                    role,
+                },
+            );
+        }
+    }
+
+    if let Some(claims) = root.get("claims").and_then(Json::as_array) {
+        for c in claims {
+            let id = str_field(c, "id").ok_or_else(|| field_err("claim.id"))?;
+            let text = str_field(c, "text").unwrap_or_default();
+            let topic = str_field(c, "topic").unwrap_or_default();
+            delib.claims.insert(
+                id.clone(),
+                Claim {
+                    id,
+                    text,
+                    topic,
+                    normalized: String::new(),
+                },
+            );
+        }
+    }
+
+    if let Some(positions) = root.get("positions").and_then(Json::as_array) {
+        for p in positions {
+            let agent_id = str_field(p, "agent").ok_or_else(|| field_err("position.agent"))?;
+            let claim_id = str_field(p, "claim").ok_or_else(|| field_err("position.claim"))?;
+            let stance_token = str_field(p, "stance").unwrap_or_default();
+            let stance = Stance::parse(&stance_token).ok_or_else(|| ParseError {
+                line: 0,
