@@ -222,3 +222,16 @@ pub fn render_json(delib: &Deliberation, adj: &Adjudication) -> String {
         ("verdicts", Json::Arr(verdicts)),
     ]);
 
+    json::to_string_pretty(&report)
+}
+
+fn verdict_report_json(delib: &Deliberation, v: &Verdict) -> Json {
+    let claim = delib.claims.get(&v.claim_id);
+    json::obj(vec![
+        ("claim", json::s(&v.claim_id)),
+        (
+            "text",
+            json::s(claim.map(|c| c.text.clone()).unwrap_or_default()),
+        ),
+        (
+            "topic",
