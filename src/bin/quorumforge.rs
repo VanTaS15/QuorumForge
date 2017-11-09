@@ -50,3 +50,19 @@ OPTIONS:
     --dissent <0..1>       Dissent ceiling (default: 0.34).
     --min-mass <n>         Minimum decisive mass to escape unsupported.
     -o, --output <path>    Write output to a file instead of stdout.
+    --json                 Treat stdin / extensionless input as JSON.
+
+EXAMPLES:
+    quorumforge adjudicate samples/cache-coherence.qf
+    quorumforge adjudicate --format json samples/vaccine-efficacy.json
+    quorumforge bundle samples/cache-coherence.qf -o bundle.json
+    quorumforge verify bundle.json
+    cat samples/cache-coherence.qf | quorumforge adjudicate -
+";
+
+fn main() -> ExitCode {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match run(&args) {
+        Ok(code) => code,
+        Err(err) => {
+            eprintln!("quorumforge: {}", err.message);
