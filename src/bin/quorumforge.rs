@@ -66,3 +66,19 @@ fn main() -> ExitCode {
         Ok(code) => code,
         Err(err) => {
             eprintln!("quorumforge: {}", err.message);
+            err.code
+        }
+    }
+}
+
+struct CliError {
+    message: String,
+    code: ExitCode,
+}
+
+impl CliError {
+    fn usage(msg: impl Into<String>) -> Self {
+        CliError {
+            message: msg.into(),
+            code: ExitCode::from(2),
+        }
