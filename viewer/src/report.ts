@@ -19,24 +19,3 @@ export interface VerdictView {
   normalized: string;
   outcome: Outcome;
   affirmed: boolean;
-  polarity: number;
-  decisive_mass: number;
-  support_mass: number;
-  contradiction_mass: number;
-  dissent_ratio: number;
-  supporters: number;
-  dissenters: number;
-  abstentions: number;
-  citations: number;
-  majority_agents: string[];
-  minority_agents: string[];
-}
-
-export interface ReportSummary {
-  total_claims: number;
-  consensus: number;
-  contested: number;
-  split: number;
-  unsupported: number;
-  cohesion: number;
-}
