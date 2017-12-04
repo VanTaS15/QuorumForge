@@ -82,3 +82,20 @@ impl CliError {
             message: msg.into(),
             code: ExitCode::from(2),
         }
+    }
+    fn parse(msg: impl Into<String>) -> Self {
+        CliError {
+            message: msg.into(),
+            code: ExitCode::from(3),
+        }
+    }
+}
+
+fn run(args: &[String]) -> Result<ExitCode, CliError> {
+    if args.is_empty() {
+        print!("{}", USAGE);
+        return Ok(ExitCode::from(2));
+    }
+
+    let command = args[0].as_str();
+    if command == "help" || command == "--help" || command == "-h" {
