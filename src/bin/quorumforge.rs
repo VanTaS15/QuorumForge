@@ -99,3 +99,19 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
 
     let command = args[0].as_str();
     if command == "help" || command == "--help" || command == "-h" {
+        print!("{}", USAGE);
+        return Ok(ExitCode::SUCCESS);
+    }
+
+    // Parse options and collect the positional input path.
+    let mut format = "text".to_string();
+    let mut policy = Policy::default();
+    let mut output: Option<String> = None;
+    let mut input: Option<String> = None;
+    let mut force_json = false;
+
+    let mut i = 1;
+    while i < args.len() {
+        let arg = args[i].as_str();
+        match arg {
+            "--format" => {
