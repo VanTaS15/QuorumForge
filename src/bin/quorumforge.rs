@@ -115,3 +115,20 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
         let arg = args[i].as_str();
         match arg {
             "--format" => {
+                format = take_value(args, &mut i, "--format")?;
+            }
+            "--consensus" => {
+                policy.consensus_threshold = take_f64(args, &mut i, "--consensus")?;
+            }
+            "--dissent" => {
+                policy.dissent_ceiling = take_f64(args, &mut i, "--dissent")?;
+            }
+            "--min-mass" => {
+                policy.minimum_mass = take_f64(args, &mut i, "--min-mass")?;
+            }
+            "-o" | "--output" => {
+                output = Some(take_value(args, &mut i, "--output")?);
+            }
+            "--json" => {
+                force_json = true;
+            }
