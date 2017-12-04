@@ -132,3 +132,19 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
             "--json" => {
                 force_json = true;
             }
+            other if other.starts_with("--") => {
+                return Err(CliError::usage(format!("unknown option '{}'", other)));
+            }
+            _ => {
+                if input.is_some() {
+                    return Err(CliError::usage(format!(
+                        "unexpected extra argument '{}'",
+                        arg
+                    )));
+                }
+                input = Some(arg.to_string());
+            }
+        }
+        i += 1;
+    }
+
