@@ -20,25 +20,3 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.toml') }}
-
-      - name: Check formatting
-        run: cargo fmt --check
-
-      - name: Clippy (deny warnings)
-        run: cargo clippy --all-targets -- -D warnings
-
-      - name: Build (release)
-        run: cargo build --release
-
-      - name: Test (incl. doctests)
-        run: cargo test
-
-      - name: Smoke-test the CLI on every sample
-        run: |
-          cargo run --release -- adjudicate samples/cache-coherence.qf
-          cargo run --release -- adjudicate --format json samples/migration-strategy.json > report.json
-          cargo run --release -- bundle samples/cache-coherence.qf -o bundle.json
