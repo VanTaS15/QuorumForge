@@ -213,3 +213,20 @@ fn load_adjudicated(
     policy: &Policy,
 ) -> Result<(quorumforge::Deliberation, quorumforge::Adjudication), CliError> {
     let mut delib =
+        parse::parse_auto(path, contents).map_err(|e| CliError::parse(e.to_string()))?;
+    normalize::normalize_deliberation(&mut delib);
+    let adj = adjudicate(&delib, policy);
+    Ok((delib, adj))
+}
+
+/// Re-parse a bundle JSON, re-derive the digest, and compare. This does not use
+/// the library's `Bundle` struct round-trip; it recomputes the digest from the
+/// serialised body exactly as `bundle::to_json` would, minus the digest field.
+fn verify_bundle(contents: &str) -> Result<bool, CliError> {
+    let root = json::parse(contents).map_err(|e| CliError::parse(e.message))?;
+    let stored = root
+        .get("digest")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| CliError::parse("bundle has no 'digest' field"))?;
+
+    // Reconstruct the body without the digest, in the same key order the writer
