@@ -230,3 +230,19 @@ fn verify_bundle(contents: &str) -> Result<bool, CliError> {
         .ok_or_else(|| CliError::parse("bundle has no 'digest' field"))?;
 
     // Reconstruct the body without the digest, in the same key order the writer
+    // used, then compact-serialise and hash it.
+    let entries = root
+        .as_object()
+        .ok_or_else(|| CliError::parse("bundle root is not an object"))?;
+    let body: Vec<(String, json::Json)> = entries
+        .iter()
+        .filter(|(k, _)| k != "digest")
+        .cloned()
+        .collect();
+    let body_json = json::Json::Obj(body);
+    let recomputed = bundle::fnv1a_hex(json::to_string(&body_json).as_bytes());
+    Ok(recomputed == stored)
+}
+
+fn inspect_json(delib: &quorumforge::Deliberation) -> String {
+    let agents: Vec<json::Json> = delib
