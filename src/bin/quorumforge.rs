@@ -246,3 +246,19 @@ fn verify_bundle(contents: &str) -> Result<bool, CliError> {
 
 fn inspect_json(delib: &quorumforge::Deliberation) -> String {
     let agents: Vec<json::Json> = delib
+        .agents
+        .values()
+        .map(|a| {
+            json::obj(vec![
+                ("id", json::s(&a.id)),
+                ("name", json::s(&a.name)),
+                ("role", json::s(&a.role)),
+                ("weight", json::num(a.weight)),
+            ])
+        })
+        .collect();
+    let claims: Vec<json::Json> = delib
+        .claims
+        .values()
+        .map(|c| {
+            json::obj(vec![
