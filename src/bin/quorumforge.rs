@@ -262,3 +262,20 @@ fn inspect_json(delib: &quorumforge::Deliberation) -> String {
         .values()
         .map(|c| {
             json::obj(vec![
+                ("id", json::s(&c.id)),
+                ("topic", json::s(&c.topic)),
+                ("text", json::s(&c.text)),
+                ("normalized", json::s(&c.normalized)),
+            ])
+        })
+        .collect();
+    let positions: Vec<json::Json> = delib
+        .positions
+        .iter()
+        .map(|p| {
+            let cites: Vec<json::Json> = p
+                .citations
+                .iter()
+                .map(|c| {
+                    json::obj(vec![
+                        ("source", json::s(&c.source)),
