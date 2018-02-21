@@ -23,3 +23,9 @@ declare module "node:fs" {
   export function existsSync(path: string): boolean;
 }
 
+declare module "node:process" {
+  const p: typeof process;
+  export default p;
+}
+
+declare module "node:assert/strict" {
