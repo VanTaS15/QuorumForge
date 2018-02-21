@@ -12,3 +12,9 @@ declare const process: {
     on(event: "end", listener: () => void): void;
     setEncoding(encoding: string): void;
     isTTY?: boolean;
+  };
+  stdout: { write(text: string): boolean };
+  stderr: { write(text: string): boolean };
+};
+
+declare module "node:fs" {
