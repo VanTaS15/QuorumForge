@@ -2,3 +2,8 @@
 // viewer touches. QuorumForge's viewer is deliberately dependency-light: it
 // pulls in neither `@types/node` nor any runtime packages. These declarations
 // cover exactly what `cli.ts` uses and nothing more.
+
+declare const process: {
+  argv: string[];
+  exitCode?: number;
+  exit(code?: number): never;
