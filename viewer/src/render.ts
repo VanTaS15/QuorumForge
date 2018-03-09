@@ -69,3 +69,17 @@ export function renderConsole(report: Report, opts: ConsoleOptions = {}): string
   );
   lines.push(
     `cohesion ${paint(ANSI.cyan, cohesionBar)} ${(s.cohesion * 100).toFixed(1)}%`,
+  );
+  lines.push(paint(ANSI.gray, rule));
+
+  for (const v of report.verdicts) {
+    lines.push(...renderVerdictConsole(v, width, paint));
+  }
+
+  lines.push(paint(ANSI.gray, rule));
+  lines.push(paint(ANSI.bold, "council roster (weighted influence)"));
+  const maxInfluence = Math.max(1e-9, ...report.agents.map((a) => a.influence));
+  for (const a of report.agents) {
+    const b = bar(a.influence / maxInfluence, 16);
+    lines.push(
+      `  ${pad(a.id, 14)} ${paint(ANSI.cyan, b)} ${a.influence
