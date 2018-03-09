@@ -40,3 +40,17 @@ export interface ConsoleOptions {
 export function renderConsole(report: Report, opts: ConsoleOptions = {}): string {
   const width = opts.width ?? 60;
   const paint = (code: string, text: string): string =>
+    opts.noColor ? text : `${code}${text}${ANSI.reset}`;
+
+  const lines: string[] = [];
+  const rule = "─".repeat(74);
+  const heavy = "━".repeat(74);
+
+  lines.push(paint(ANSI.magenta, heavy));
+  lines.push(
+    paint(ANSI.bold, `QUORUMFORGE COUNCIL  ::  ${report.deliberation_id}`),
+  );
+  for (const l of wrap(report.question, 68)) {
+    lines.push(paint(ANSI.dim, `  ${l}`));
+  }
+  lines.push(paint(ANSI.magenta, heavy));
