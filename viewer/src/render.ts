@@ -83,3 +83,18 @@ export function renderConsole(report: Report, opts: ConsoleOptions = {}): string
     const b = bar(a.influence / maxInfluence, 16);
     lines.push(
       `  ${pad(a.id, 14)} ${paint(ANSI.cyan, b)} ${a.influence
+        .toFixed(2)
+        .padStart(6)}  ${paint(ANSI.dim, `${a.name} · ${a.role || "—"}`)}`,
+    );
+  }
+  lines.push(paint(ANSI.magenta, heavy));
+  return lines.join("\n") + "\n";
+}
+
+function renderVerdictConsole(
+  v: VerdictView,
+  width: number,
+  paint: (code: string, t: string) => string,
+): string[] {
+  const meta = OUTCOME_META[v.outcome];
+  const out: string[] = [];
