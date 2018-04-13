@@ -213,3 +213,17 @@ export function renderHtml(report: Report): string {
               100,
           )}%"></span></div>
           <em>${a.influence.toFixed(2)}</em></li>`,
+    )
+    .join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuorumForge · ${escapeHtml(report.deliberation_id)}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 ui-monospace, "Cascadia Code", Menlo, monospace;
+    background: radial-gradient(1200px 800px at 20% -10%, #1a1442, #0a0716 60%);
