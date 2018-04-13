@@ -198,3 +198,18 @@ export function renderHtml(report: Report): string {
           <div><dt>cites</dt><dd>${v.citations}</dd></div>
         </dl>${dissent}
       </article>`;
+    })
+    .join("\n");
+
+  const roster = report.agents
+    .map(
+      (a) =>
+        `        <li><b>${escapeHtml(a.id)}</b> <span>${escapeHtml(
+          a.name,
+        )} · ${escapeHtml(a.role || "—")}</span>
+          <div class="bar"><span style="width:${Math.min(
+            100,
+            (a.influence / Math.max(1e-9, ...report.agents.map((x) => x.influence))) *
+              100,
+          )}%"></span></div>
+          <em>${a.influence.toFixed(2)}</em></li>`,
