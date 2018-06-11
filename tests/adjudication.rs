@@ -142,3 +142,18 @@ fn agent_weight_scales_influence() {
     // A single heavyweight supporter should outweigh two light contradictors.
     let d = build(
         vec![agent("heavy", 3.0), agent("l1", 1.0), agent("l2", 1.0)],
+        vec![claim("c1")],
+        vec![
+            pos("heavy", "c1", Stance::Support, 1.0),
+            pos("l1", "c1", Stance::Contradict, 1.0),
+            pos("l2", "c1", Stance::Contradict, 0.0),
+        ],
+    );
+    let v = verdict_for(&d, "c1", &Policy::default());
+    // support 3.0, contradiction 1.0 -> polarity 0.5, dissent 0.25.
+    assert!(v.affirmed);
+    assert!((v.polarity - 0.5).abs() < 1e-9);
+    assert_eq!(v.outcome, Outcome::Split);
+}
+
+#[test]
