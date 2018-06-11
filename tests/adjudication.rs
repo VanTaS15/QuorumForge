@@ -187,3 +187,18 @@ fn cohesion_is_mass_weighted() {
     assert!((adj.cohesion - (4.0 / 6.0)).abs() < 1e-6);
 }
 
+#[test]
+fn policy_thresholds_change_classification() {
+    let d = build(
+        vec![agent("a", 0.7), agent("b", 0.3)],
+        vec![claim("c1")],
+        vec![
+            pos("a", "c1", Stance::Support, 1.0),
+            pos("b", "c1", Stance::Contradict, 1.0),
+        ],
+    );
+    // Default: 70/30 is a Split. Lower the consensus bar and raise dissent
+    // tolerance so the same votes read as Consensus.
+    let lenient = Policy {
+        consensus_threshold: 0.3,
+        dissent_ceiling: 0.5,
