@@ -35,3 +35,19 @@ itself a first-class result.
 
 ---
 
+## 2. Line-oriented format (`.qf`)
+
+### 2.1 Lexical rules
+
+- One **record** per line.
+- Blank lines are ignored.
+- Lines whose first non-space character is `#` are comments and are ignored.
+- A record is a **directive keyword** followed by pipe-delimited (`|`) fields.
+- Every field is trimmed of surrounding whitespace.
+- A literal pipe inside a field is written `\|`.
+
+### 2.2 Directives
+
+```text
+delib | <id> | <question>
+agent | <id> | <name> | <weight> | <role>
