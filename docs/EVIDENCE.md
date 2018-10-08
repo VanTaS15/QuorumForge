@@ -67,3 +67,19 @@ Rules:
 - `stance` accepts synonyms: `support`/`supports`/`for`/`+`,
   `contradict`/`contradicts`/`refute`/`against`/`-`, `abstain`/`neutral`/`0`.
 
+### 2.3 Worked example
+
+```qf
+# A three-agent deliberation with one clear consensus claim.
+delib | demo | Is the release ready to ship?
+
+agent | ana  | Ana Ito     | 1.4 | release-manager
+agent | ben  | Ben Osei    | 1.0 | qa
+agent | cse  | Cse Varga   | 0.9 | support
+
+claim | r1 | quality | All P0 bugs are resolved.
+claim | r2 | risk    | The rollback path has been rehearsed.
+
+pos  | ana | r1 | support    | 0.9 | burn-down chart is at zero
+cite | ana | r1 | tracker:P0 | filter status=closed returns 0 rows
+pos  | ben | r1 | support    | 0.8 | verified the last three fixes
