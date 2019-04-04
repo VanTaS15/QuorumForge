@@ -11,3 +11,4 @@ adjudication engine with a matching council viewer.
 
 ### Added
 
+- **Rust core (std-only).**
