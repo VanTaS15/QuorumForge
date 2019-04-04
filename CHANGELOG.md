@@ -14,3 +14,4 @@ adjudication engine with a matching council viewer.
 - **Rust core (std-only).**
   - Data model for agents, claims, positions, citations, and deliberations.
   - Two input parsers that converge on one model: a line-oriented `.qf` format
+    (comments, escapes, `cite` attachment) and a JSON format.
