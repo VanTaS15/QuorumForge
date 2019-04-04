@@ -12,3 +12,4 @@ adjudication engine with a matching council viewer.
 ### Added
 
 - **Rust core (std-only).**
+  - Data model for agents, claims, positions, citations, and deliberations.
