@@ -21,3 +21,4 @@ adjudication engine with a matching council viewer.
   - Lexical claim normalization: whitespace collapse, trailing-punctuation
     stripping, leading-hedge removal with word-boundary safety, and contraction
     expansion; plus normalized clustering and a Jaccard similarity helper.
+  - A weighted adjudication engine producing four outcomes — consensus,
