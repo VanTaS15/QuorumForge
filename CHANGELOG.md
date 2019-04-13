@@ -20,3 +20,4 @@ adjudication engine with a matching council viewer.
     number snapping for byte-stable output.
   - Lexical claim normalization: whitespace collapse, trailing-punctuation
     stripping, leading-hedge removal with word-boundary safety, and contraction
+    expansion; plus normalized clustering and a Jaccard similarity helper.
