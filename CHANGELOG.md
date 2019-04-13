@@ -23,3 +23,4 @@ adjudication engine with a matching council viewer.
     expansion; plus normalized clustering and a Jaccard similarity helper.
   - A weighted adjudication engine producing four outcomes — consensus,
     contested, split, unsupported — with a tunable policy (consensus threshold,
+    dissent ceiling, minimum mass) and a mass-weighted cohesion score.
