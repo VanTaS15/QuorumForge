@@ -19,3 +19,4 @@ adjudication engine with a matching council viewer.
     preservation, unicode escape and surrogate-pair handling, and six-decimal
     number snapping for byte-stable output.
   - Lexical claim normalization: whitespace collapse, trailing-punctuation
+    stripping, leading-hedge removal with word-boundary safety, and contraction
