@@ -28,3 +28,4 @@ adjudication engine with a matching council viewer.
     round-trip guarantee.
   - Text and `quorumforge.report.v1` JSON report renderers.
 - **CLI** (`quorumforge`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
+  `help` commands; stdin support; policy flags; and meaningful exit codes.
