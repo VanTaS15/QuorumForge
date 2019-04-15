@@ -29,3 +29,4 @@ adjudication engine with a matching council viewer.
   - Text and `quorumforge.report.v1` JSON report renderers.
 - **CLI** (`quorumforge`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
   `help` commands; stdin support; policy flags; and meaningful exit codes.
+- **TypeScript council viewer** (`qf-view`), dependency-light (only `tsc` at
