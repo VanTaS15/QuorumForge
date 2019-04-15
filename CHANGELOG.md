@@ -26,3 +26,4 @@ adjudication engine with a matching council viewer.
     dissent ceiling, minimum mass) and a mass-weighted cohesion score.
   - Deterministic, digest-stamped evidence bundles (FNV-1a) with a `verify`
     round-trip guarantee.
+  - Text and `quorumforge.report.v1` JSON report renderers.
