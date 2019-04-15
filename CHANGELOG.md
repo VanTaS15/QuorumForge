@@ -27,3 +27,4 @@ adjudication engine with a matching council viewer.
   - Deterministic, digest-stamped evidence bundles (FNV-1a) with a `verify`
     round-trip guarantee.
   - Text and `quorumforge.report.v1` JSON report renderers.
+- **CLI** (`quorumforge`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
