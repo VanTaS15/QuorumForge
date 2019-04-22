@@ -31,3 +31,4 @@ adjudication engine with a matching council viewer.
   `help` commands; stdin support; policy flags; and meaningful exit codes.
 - **TypeScript council viewer** (`qf-view`), dependency-light (only `tsc` at
   build time), with an ANSI console renderer, a self-contained HTML renderer
+  (no remote assets), report-schema validation, and an assertion-based test
