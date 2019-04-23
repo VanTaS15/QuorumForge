@@ -35,3 +35,4 @@ adjudication engine with a matching council viewer.
   suite.
 - **Samples**: `cache-coherence.qf` (exercises all four outcomes),
   `migration-strategy.json`, and `normalization.qf` (hedge/contraction folding).
+- **Docs**: `docs/EVIDENCE.md` normative format reference; a luminous
