@@ -34,3 +34,4 @@ adjudication engine with a matching council viewer.
   (no remote assets), report-schema validation, and an assertion-based test
   suite.
 - **Samples**: `cache-coherence.qf` (exercises all four outcomes),
+  `migration-strategy.json`, and `normalization.qf` (hedge/contraction folding).
