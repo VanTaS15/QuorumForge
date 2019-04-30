@@ -40,3 +40,4 @@ adjudication engine with a matching council viewer.
   (`council-prism.svg`, `dissent-map.svg`).
 - **Tooling**: `Cargo.toml`, `Makefile`, `.gitignore`, MIT `LICENSE`, and a
   GitHub Actions CI workflow that builds and tests both languages.
+
