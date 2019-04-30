@@ -37,3 +37,4 @@ adjudication engine with a matching council viewer.
   `migration-strategy.json`, and `normalization.qf` (hedge/contraction folding).
 - **Docs**: `docs/EVIDENCE.md` normative format reference; a luminous
   prism-themed `README.md`; two original animated SVGs
+  (`council-prism.svg`, `dissent-map.svg`).
