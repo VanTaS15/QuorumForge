@@ -38,3 +38,4 @@ adjudication engine with a matching council viewer.
 - **Docs**: `docs/EVIDENCE.md` normative format reference; a luminous
   prism-themed `README.md`; two original animated SVGs
   (`council-prism.svg`, `dissent-map.svg`).
+- **Tooling**: `Cargo.toml`, `Makefile`, `.gitignore`, MIT `LICENSE`, and a
