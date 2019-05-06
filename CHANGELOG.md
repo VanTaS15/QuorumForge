@@ -41,3 +41,4 @@ adjudication engine with a matching council viewer.
 - **Tooling**: `Cargo.toml`, `Makefile`, `.gitignore`, MIT `LICENSE`, and a
   GitHub Actions CI workflow that builds and tests both languages.
 
+### Notes
