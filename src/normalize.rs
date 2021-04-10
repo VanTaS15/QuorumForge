@@ -153,3 +153,30 @@ pub fn similarity(a: &str, b: &str) -> f64 {
 /// Build a lookup of a claim id to its normalized form for a deliberation
 /// whose claims may not yet be normalized.
 pub fn normalized_index(delib: &Deliberation) -> BTreeMap<String, String> {
+    delib
+        .claims
+        .values()
+        .map(|c| {
+            let n = if c.normalized.is_empty() {
+                normalize_text(&c.text)
+            } else {
+                c.normalized.clone()
+            };
+            (c.id.clone(), n)
+        })
+        .collect()
+}
+
+/// Convenience: apply normalization and return the fresh claim list, leaving
+/// the caller's ownership intact where a full mutation is not desired.
+pub fn normalized_claims(delib: &Deliberation) -> Vec<Claim> {
+    delib
+        .claims
+        .values()
+        .map(|c| {
+            let mut c = c.clone();
+            c.normalized = normalize_text(&c.text);
+            c
+        })
+        .collect()
+// review note
