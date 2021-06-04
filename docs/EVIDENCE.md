@@ -28,3 +28,35 @@ A deliberation contains four kinds of entity:
 A **stance** is one of `support`, `contradict`, or `abstain`. A **confidence**
 is a number in `[0.0, 1.0]`. A **weight** is any non-negative number; `1.0` is
 the neutral default.
+
+The engine never invents positions. If no agent takes a decisive stance on a
+claim, that claim is reported as `unsupported` — the absence of evidence is
+itself a first-class result.
+
+---
+
+## 2. Line-oriented format (`.qf`)
+
+### 2.1 Lexical rules
+
+- One **record** per line.
+- Blank lines are ignored.
+- Lines whose first non-space character is `#` are comments and are ignored.
+- A record is a **directive keyword** followed by pipe-delimited (`|`) fields.
+- Every field is trimmed of surrounding whitespace.
+- A literal pipe inside a field is written `\|`.
+
+### 2.2 Directives
+
+```text
+delib | <id> | <question>
+agent | <id> | <name> | <weight> | <role>
+claim | <id> | <topic> | <text>
+pos   | <agent_id> | <claim_id> | <stance> | <confidence> | <note>
+cite  | <agent_id> | <claim_id> | <source> | <locator>
+```
+
+Rules:
+
+- Exactly **one** `delib` record is required, and it must appear before any
+  `agent`, `claim`, `pos`, or `cite` record.
