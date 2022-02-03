@@ -290,3 +290,60 @@ cargo run -- verify bundle.json
 The digest covers the *compact* canonical body with object keys in a fixed
 order, positions sorted by `(claim, agent, stance)`, and all floating-point
 values snapped to a six-decimal grid. That last detail is load-bearing: it makes
+the JSON writer **idempotent**, so a bundle survives a round trip through the
+parser without changing its digest. Mutate any field and `verify` returns exit
+code `4`.
+
+---
+
+## Testing
+
+Both halves ship with focused tests and are exercised together in CI.
+
+```sh
+# Rust: unit tests, integration tests, and doctests.
+cargo test
+
+# TypeScript: compile, then run the assertion-based renderer suite.
+cd viewer && npm test
+
+# Everything, via the Makefile.
+make test
+```
+
+The Rust suite covers the four verdict outcomes, weight and confidence scaling,
+policy tuning, parser error paths, JSON round-trip stability (including unicode
+escapes and surrogate pairs), bundle determinism, and tamper detection. The
+viewer suite covers report validation, ANSI vs. plain output, HTML escaping, and
+render determinism.
+
+---
+
+## Design commitments
+
+- **No orchestration.** QuorumForge judges a transcript; it never runs agents.
+- **No dependencies.** Rust core is std-only; the viewer's only build-time
+  dependency is `tsc`. There is no `Cargo.lock` churn and no `node_modules`
+  supply chain to audit at runtime.
+- **Determinism first.** Ordered maps, sorted positions, snapped floats, and an
+  idempotent JSON writer mean identical inputs give identical bytes.
+- **Auditability over cleverness.** Every intermediate quantity (masses,
+  polarity, dissent) is retained in the report so a human can check the math.
+- **Offline forever.** No network calls, no remote media, no telemetry.
+
+---
+
+## Limitations
+
+QuorumForge is intentionally narrow. Know the edges before you rely on it.
+
+- **No semantic understanding.** Claim normalization is lexical only — it folds
+  hedges and contractions and collapses whitespace. Two claims that *mean* the
+  same thing but share no words are treated as distinct. There is no embedding
+  model, paraphrase detector, or entailment check, and adding one would break
+  determinism.
+- **No provenance grading.** Citations are recorded and counted, but their
+  *quality* is not assessed. A citation to a rigorous proof and a citation to a
+  hunch count the same toward the citation tally. Weight your agents, not your
+  sources.
+- **Confidence is self-reported.** The engine trusts (after clamping) whatever
