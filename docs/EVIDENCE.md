@@ -146,3 +146,34 @@ Field defaults match the line format: `weight` and `confidence` default to
     { "agent": "ana", "claim": "r1", "stance": "support", "confidence": 0.9,
       "note": "burn-down at zero",
       "citations": [ { "source": "tracker:P0", "locator": "0 open rows" } ] },
+    { "agent": "ben", "claim": "r1", "stance": "support", "confidence": 0.8, "note": "spot-checked" }
+  ]
+}
+```
+
+---
+
+## 4. Validation
+
+After parsing, QuorumForge validates the deliberation and rejects it with a
+descriptive error if:
+
+- there is no `delib`/top-level object;
+- a position references an agent id that was never declared;
+- a position references a claim id that was never declared;
+- a confidence falls outside `[0.0, 1.0]`;
+- a `cite` (line format) has no matching position.
+
+These checks catch the most common authoring mistakes — typo'd ids and
+out-of-range confidences — before they silently drop votes.
+
+---
+
+## 5. Normalization
+
+Before adjudication, every claim's text is reduced to a canonical
+`normalized` form used for grouping near-duplicate claims. Normalization:
+
+1. lower-cases and collapses runs of whitespace;
+2. strips trailing sentence punctuation (`. ! ? ;`);
+3. removes a single leading hedge (`I think`, `arguably`, `clearly`, …) when it
