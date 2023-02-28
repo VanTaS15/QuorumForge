@@ -216,3 +216,61 @@ with `sign(support) = +1` and `sign(contradict) = −1`. Confidence is clamped t
 `[0, 1]` defensively. For a claim, sum the support votes into `S` and the
 contradiction magnitudes into `C`, then:
 
+```
+decisive_mass = S + C
+polarity      = (S − C) / decisive_mass       ∈ [−1, +1]
+dissent_ratio = min(S, C) / decisive_mass      ∈ [0, 0.5]
+```
+
+`polarity` is *which way* the light bends; `decisive_mass` is *how bright* the
+beam is; `dissent_ratio` is *how much* of the beam scatters the other way.
+
+<div align="center">
+<img src="docs/assets/dissent-map.svg" alt="A ring of agents around a central claim, with green support threads and red dissent threads pulsing inward" width="620" />
+</div>
+
+The classifier then reads those three numbers against a **policy** (see below):
+
+- **unsupported** if `decisive_mass ≤ minimum_mass`
+- **consensus** if `|polarity| ≥ consensus_threshold` **and** `dissent_ratio < dissent_ceiling`
+- **contested** if `dissent_ratio ≥ dissent_ceiling`
+- **split** otherwise
+
+Finally, the deliberation earns a single **cohesion** score in `[0, 1]`: the
+mass-weighted average of each claim's `|polarity|`. A council that agrees loudly
+on heavy claims scores near `1.0`; one that is evenly split scores near `0`.
+
+### Worked micro-example
+
+Two agents weigh in on one claim. Ada (weight `1.5`) supports at confidence
+`0.8`; Bo (weight `1.0`) contradicts at confidence `0.6`.
+
+```
+S = 1.5 · 0.8 = 1.20        C = 1.0 · 0.6 = 0.60
+decisive_mass = 1.80
+polarity      = (1.20 − 0.60) / 1.80 = +0.333
+dissent_ratio = 0.60 / 1.80           =  0.333
+```
+
+Under the default policy (`consensus_threshold = 0.66`, `dissent_ceiling =
+0.34`): `dissent_ratio 0.333 < 0.34`, so it is not contested; `|polarity| 0.333
+< 0.66`, so it is not consensus. The verdict is **split, affirmed**.
+
+---
+
+## Tuning the policy
+
+Three knobs govern classification. All are validated to sensible ranges.
+
+| Knob | Flag | Default | Effect |
+|------|------|:-------:|--------|
+| `consensus_threshold` | `--consensus` | `0.66` | How lopsided a claim must be to count as consensus. |
+| `dissent_ceiling` | `--dissent` | `0.34` | How much losing-side mass tips a claim into "contested". |
+| `minimum_mass` | `--min-mass` | `~0` | How much decisive weight is needed to escape "unsupported". |
+
+Raising `consensus_threshold` makes the council harder to satisfy. Lowering
+`dissent_ceiling` makes it quicker to flag division. The defaults encode a
+familiar rule of thumb: **a two-thirds supermajority with limited dissent reads
+as consensus.**
+
+---
