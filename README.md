@@ -274,3 +274,60 @@ familiar rule of thumb: **a two-thirds supermajority with limited dissent reads
 as consensus.**
 
 ---
+
+## Deterministic bundles
+
+A **bundle** is a canonical, self-contained snapshot of a deliberation *and* its
+verdicts, stamped with a content digest (a small, dependency-free FNV-1a hash).
+Bundles are byte-stable — the same inputs always produce the same bytes — so
+they diff cleanly and can be checksummed in CI.
+
+```sh
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
+cargo run -- verify bundle.json
+```
+
+The digest covers the *compact* canonical body with object keys in a fixed
+order, positions sorted by `(claim, agent, stance)`, and all floating-point
+values snapped to a six-decimal grid. That last detail is load-bearing: it makes
+the JSON writer **idempotent**, so a bundle survives a round trip through the
+parser without changing its digest. Mutate any field and `verify` returns exit
+code `4`.
+
+---
+
+## Testing
+
+Both halves ship with focused tests and are exercised together in CI.
+
+```sh
+# Rust: unit tests, integration tests, and doctests.
+cargo test
+
+# TypeScript: compile, then run the assertion-based renderer suite.
+cd viewer && npm test
+
+# Everything, via the Makefile.
+make test
+```
+
+The Rust suite covers the four verdict outcomes, weight and confidence scaling,
+policy tuning, parser error paths, JSON round-trip stability (including unicode
+escapes and surrogate pairs), bundle determinism, and tamper detection. The
+viewer suite covers report validation, ANSI vs. plain output, HTML escaping, and
+render determinism.
+
+---
+
+## Design commitments
+
+- **No orchestration.** QuorumForge judges a transcript; it never runs agents.
+- **No dependencies.** Rust core is std-only; the viewer's only build-time
+  dependency is `tsc`. There is no `Cargo.lock` churn and no `node_modules`
+  supply chain to audit at runtime.
+- **Determinism first.** Ordered maps, sorted positions, snapped floats, and an
+  idempotent JSON writer mean identical inputs give identical bytes.
+- **Auditability over cleverness.** Every intermediate quantity (masses,
+  polarity, dissent) is retained in the report so a human can check the math.
+- **Offline forever.** No network calls, no remote media, no telemetry.
+
