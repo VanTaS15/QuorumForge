@@ -6,19 +6,3 @@
 
 delib | normalization | Does the release candidate meet the latency budget?
 
-agent | q1 | Quill  | 1.0 | qa
-agent | q2 | Rho    | 1.2 | perf
-agent | q3 | Sable  | 0.9 | product
-
-# These normalize identically: "the p99 latency is under 200ms"
-claim | n1 | latency | I think the p99 latency is under 200ms.
-claim | n2 | latency | The p99 latency is under 200ms!
-claim | n3 | latency | Arguably, the p99 latency is under 200ms.
-
-# A distinct claim with a contraction that expands during normalization.
-claim | n4 | latency | The service isn't dropping requests under load.
-
-pos | q1 | n1 | support    | 0.8 | measured 180ms in staging
-cite| q1 | n1 | bench:staging-run-9 | p99 = 181ms
-pos | q2 | n2 | support    | 0.9 | reproduced on the perf rig
-pos | q3 | n3 | contradict | 0.4 | one region saw 240ms
