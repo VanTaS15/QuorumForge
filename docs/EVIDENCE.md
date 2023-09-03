@@ -37,3 +37,35 @@ itself a first-class result.
 
 ## 2. Line-oriented format (`.qf`)
 
+### 2.1 Lexical rules
+
+- One **record** per line.
+- Blank lines are ignored.
+- Lines whose first non-space character is `#` are comments and are ignored.
+- A record is a **directive keyword** followed by pipe-delimited (`|`) fields.
+- Every field is trimmed of surrounding whitespace.
+- A literal pipe inside a field is written `\|`.
+
+### 2.2 Directives
+
+```text
+delib | <id> | <question>
+agent | <id> | <name> | <weight> | <role>
+claim | <id> | <topic> | <text>
+pos   | <agent_id> | <claim_id> | <stance> | <confidence> | <note>
+cite  | <agent_id> | <claim_id> | <source> | <locator>
+```
+
+Rules:
+
+- Exactly **one** `delib` record is required, and it must appear before any
+  `agent`, `claim`, `pos`, or `cite` record.
+- `weight` defaults to `1.0` if omitted or empty; `role` defaults to empty.
+- `confidence` defaults to `1.0` if omitted or empty; `note` defaults to empty.
+- A `cite` attaches to the **most recently declared** `pos` for the same
+  `(agent_id, claim_id)` pair. A `cite` with no matching position is an error.
+- `stance` accepts synonyms: `support`/`supports`/`for`/`+`,
+  `contradict`/`contradicts`/`refute`/`against`/`-`, `abstain`/`neutral`/`0`.
+
+### 2.3 Worked example
+
