@@ -118,3 +118,60 @@ Council cohesion: 60.1%   Policy: consensus>=0.66, dissent<0.34
 ...
 ```
 
+---
+
+## The council viewer
+
+The prism is prettiest when you let the viewer render it. Build it once, then
+pipe a JSON report straight in.
+
+```sh
+# Build the viewer (installs only the TypeScript compiler).
+cd viewer
+npm install
+npm run build
+cd ..
+
+# Pipe a JSON report from the engine into the viewer's ANSI renderer.
+cargo run --release -- adjudicate --format json samples/cache-coherence.qf \
+  | node viewer/dist/cli.js -
+
+# Or produce a standalone, self-contained HTML council page.
+cargo run --release -- adjudicate --format json samples/migration-strategy.json \
+  | node viewer/dist/cli.js --html - -o council.html
+```
+
+The console renderer draws unicode influence meters and colour-codes each
+verdict band. The HTML renderer emits a single file with **all** styling inlined
+— no remote fonts, scripts, or images — so it opens offline and can be committed
+as an artifact.
+
+```sh
+# Run the viewer's own test suite.
+cd viewer && npm test
+```
+
+---
+
+## The command-line tool
+
+```text
+quorumforge <command> [options] <evidence-file | ->
+
+COMMANDS
+  adjudicate   Parse, normalize, and print a verdict report (text or json).
+  bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
+  verify       Re-derive a bundle's digest from its body and confirm it.
+  inspect      Print the parsed, normalized deliberation as JSON.
+  help         Show usage.
+
+OPTIONS
+  --format <text|json>   Report format for `adjudicate` (default: text).
+  --consensus <0..1>     Consensus polarity threshold (default: 0.66).
+  --dissent <0..1>       Dissent ceiling (default: 0.34).
+  --min-mass <n>         Minimum decisive mass to escape unsupported.
+  -o, --output <path>    Write output to a file instead of stdout.
+  --json                 Treat stdin / extensionless input as JSON.
+```
+
+### Real invocations
