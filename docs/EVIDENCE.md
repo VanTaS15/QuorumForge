@@ -132,3 +132,35 @@ Field defaults match the line format: `weight` and `confidence` default to
 ### 3.2 Equivalent example
 
 ```json
+{
+  "id": "demo",
+  "question": "Is the release ready to ship?",
+  "agents": [
+    { "id": "ana", "name": "Ana Ito", "weight": 1.4, "role": "release-manager" },
+    { "id": "ben", "name": "Ben Osei", "weight": 1.0, "role": "qa" }
+  ],
+  "claims": [
+    { "id": "r1", "topic": "quality", "text": "All P0 bugs are resolved." }
+  ],
+  "positions": [
+    { "agent": "ana", "claim": "r1", "stance": "support", "confidence": 0.9,
+      "note": "burn-down at zero",
+      "citations": [ { "source": "tracker:P0", "locator": "0 open rows" } ] },
+    { "agent": "ben", "claim": "r1", "stance": "support", "confidence": 0.8, "note": "spot-checked" }
+  ]
+}
+```
+
+---
+
+## 4. Validation
+
+After parsing, QuorumForge validates the deliberation and rejects it with a
+descriptive error if:
+
+- there is no `delib`/top-level object;
+- a position references an agent id that was never declared;
+- a position references a claim id that was never declared;
+- a confidence falls outside `[0.0, 1.0]`;
+- a `cite` (line format) has no matching position.
+
