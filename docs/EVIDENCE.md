@@ -159,3 +159,35 @@ After parsing, QuorumForge validates the deliberation and rejects it with a
 descriptive error if:
 
 - there is no `delib`/top-level object;
+- a position references an agent id that was never declared;
+- a position references a claim id that was never declared;
+- a confidence falls outside `[0.0, 1.0]`;
+- a `cite` (line format) has no matching position.
+
+These checks catch the most common authoring mistakes — typo'd ids and
+out-of-range confidences — before they silently drop votes.
+
+---
+
+## 5. Normalization
+
+Before adjudication, every claim's text is reduced to a canonical
+`normalized` form used for grouping near-duplicate claims. Normalization:
+
+1. lower-cases and collapses runs of whitespace;
+2. strips trailing sentence punctuation (`. ! ? ;`);
+3. removes a single leading hedge (`I think`, `arguably`, `clearly`, …) when it
+   forms a whole leading word;
+4. expands a fixed set of contractions (`isn't` → `is not`, `can't` → `cannot`,
+   …) so negated variants align.
+
+Normalization is intentionally shallow and deterministic. It does **not**
+perform semantic paraphrase detection; see [Limitations](../README.md#limitations).
+
+---
+
+## 6. Scoring reference
+
+For each claim, every non-abstaining position casts a signed vote:
+
+```text
