@@ -6,3 +6,12 @@
 # Grammar reminder (see docs/EVIDENCE.md):
 #   delib | <id> | <question>
 #   agent | <id> | <name> | <weight> | <role>
+#   claim | <id> | <topic> | <text>
+#   pos   | <agent> | <claim> | <stance> | <confidence> | <note>
+#   cite  | <agent> | <claim> | <source> | <locator>
+
+delib | cache-coherence | Is the distributed write-back cache coherent under concurrent writes?
+
+# --- Council ---------------------------------------------------------------
+agent | ada    | Ada Reyes      | 1.6 | systems-verification
+agent | boro   | Boro Kanel     | 1.0 | performance-skeptic
