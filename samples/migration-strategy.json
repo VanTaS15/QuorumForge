@@ -10,39 +10,3 @@
   ],
   "claims": [
     { "id": "m1", "topic": "coupling",     "text": "Domain boundaries in the monolith are already well isolated." },
-    { "id": "m2", "topic": "reliability",  "text": "Splitting services will reduce blast radius of failures." },
-    { "id": "m3", "topic": "cost",         "text": "The migration pays for itself within four quarters." },
-    { "id": "m4", "topic": "delivery",     "text": "Teams can ship independently after the split." },
-    { "id": "m5", "topic": "security",     "text": "Per-service auth boundaries improve the security posture." },
-    { "id": "m6", "topic": "timing",       "text": "Now is the right time to begin the migration." }
-  ],
-  "positions": [
-    { "agent": "pearl", "claim": "m1", "stance": "support", "confidence": 0.8,
-      "note": "Module dependency graph is mostly acyclic already.",
-      "citations": [ { "source": "audit:module-graph", "locator": "3 back-edges out of 240" } ] },
-    { "agent": "rune",  "claim": "m1", "stance": "support", "confidence": 0.7, "note": "Shared DB tables are the only real coupling." },
-    { "agent": "sol",   "claim": "m1", "stance": "contradict", "confidence": 0.6, "note": "Billing and orders still share write paths." },
-    { "agent": "vex",   "claim": "m1", "stance": "support", "confidence": 0.5, "note": "Auth is already a separable concern." },
-
-    { "agent": "rune",  "claim": "m2", "stance": "support", "confidence": 0.9,
-      "note": "Isolated failure domains contain cascading outages.",
-      "citations": [ { "source": "incident:2024-outage-review", "locator": "single monolith crash took down all traffic" } ] },
-    { "agent": "pearl", "claim": "m2", "stance": "support", "confidence": 0.8, "note": "Bulkheads become natural once split." },
-    { "agent": "sol",   "claim": "m2", "stance": "support", "confidence": 0.7, "note": "Fewer shared-fate deploys." },
-    { "agent": "twyla", "claim": "m2", "stance": "abstain",  "confidence": 0.5, "note": "Reliability gains are real but out of my lane." },
-
-    { "agent": "twyla", "claim": "m3", "stance": "contradict", "confidence": 0.85,
-      "note": "Infra and on-call costs rise before any savings appear.",
-      "citations": [ { "source": "model:tco-projection", "locator": "break-even at quarter 7, not 4" } ] },
-    { "agent": "sol",   "claim": "m3", "stance": "contradict", "confidence": 0.6, "note": "Dual-run period is expensive." },
-    { "agent": "pearl", "claim": "m3", "stance": "support",    "confidence": 0.4, "note": "Optimistic on velocity gains." },
-
-    { "agent": "sol",   "claim": "m4", "stance": "support", "confidence": 0.85, "note": "Independent pipelines unblock parallel releases." },
-    { "agent": "pearl", "claim": "m4", "stance": "support", "confidence": 0.8,  "note": "Contract tests replace lockstep deploys." },
-    { "agent": "rune",  "claim": "m4", "stance": "support", "confidence": 0.75, "note": "Rollbacks become per-service." },
-    { "agent": "twyla", "claim": "m4", "stance": "support", "confidence": 0.6,  "note": "Fewer merge trains." },
-
-    { "agent": "vex",   "claim": "m5", "stance": "support",    "confidence": 0.7, "note": "Explicit service identities and mTLS.",
-      "citations": [ { "source": "policy:zero-trust", "locator": "section 4: per-service identity" } ] },
-    { "agent": "rune",  "claim": "m5", "stance": "support",    "confidence": 0.5, "note": "Smaller trust zones." },
-    { "agent": "sol",   "claim": "m5", "stance": "contradict", "confidence": 0.55, "note": "More network surface to secure." },
