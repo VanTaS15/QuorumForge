@@ -102,3 +102,60 @@ cargo run --release -- adjudicate samples/cache-coherence.qf
 That last command prints something like:
 
 ```text
+========================================================================
+QUORUMFORGE VERDICT  ::  cache-coherence
+Question: Is the distributed write-back cache coherent under concurrent
+          writes?
+========================================================================
+Claims: 5   Consensus: 1   Contested: 1   Split: 2   Unsupported: 1
+Council cohesion: 60.1%   Policy: consensus>=0.66, dissent<0.34
+------------------------------------------------------------------------
+[=] [c1] Writes to a single key are linearizable.
+     consensus/affirmed topic=linearizability  polarity=+1.00  mass=4.33  ...
+[!] [c2] Writes across multiple keys are linearizable.
+     contested/negated topic=linearizability  polarity=-0.24  ...
+     dissenting: ada, boro
+...
+```
+
+---
+
+## The council viewer
+
+The prism is prettiest when you let the viewer render it. Build it once, then
+pipe a JSON report straight in.
+
+```sh
+# Build the viewer (installs only the TypeScript compiler).
+cd viewer
+npm install
+npm run build
+cd ..
+
+# Pipe a JSON report from the engine into the viewer's ANSI renderer.
+cargo run --release -- adjudicate --format json samples/cache-coherence.qf \
+  | node viewer/dist/cli.js -
+
+# Or produce a standalone, self-contained HTML council page.
+cargo run --release -- adjudicate --format json samples/migration-strategy.json \
+  | node viewer/dist/cli.js --html - -o council.html
+```
+
+The console renderer draws unicode influence meters and colour-codes each
+verdict band. The HTML renderer emits a single file with **all** styling inlined
+— no remote fonts, scripts, or images — so it opens offline and can be committed
+as an artifact.
+
+```sh
+# Run the viewer's own test suite.
+cd viewer && npm test
+```
+
+---
+
+## The command-line tool
+
+```text
+quorumforge <command> [options] <evidence-file | ->
+
+COMMANDS
