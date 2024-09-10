@@ -91,3 +91,35 @@ pos  | ben | r2 | contradict | 0.6 | the dry run skipped the data migration
 
 ---
 
+## 3. JSON format (`.json`)
+
+A single object with these top-level keys:
+
+| Key         | Type    | Required | Notes                                    |
+|-------------|---------|----------|------------------------------------------|
+| `id`        | string  | no       | Defaults to `"unnamed"`.                 |
+| `question`  | string  | no       | Defaults to empty.                       |
+| `agents`    | array   | no       | Array of agent objects.                  |
+| `claims`    | array   | no       | Array of claim objects.                  |
+| `positions` | array   | no       | Array of position objects.               |
+
+### 3.1 Object shapes
+
+```jsonc
+// agent
+{ "id": "ana", "name": "Ana Ito", "weight": 1.4, "role": "release-manager" }
+
+// claim
+{ "id": "r1", "topic": "quality", "text": "All P0 bugs are resolved." }
+
+// position
+{
+  "agent": "ana",
+  "claim": "r1",
+  "stance": "support",          // support | contradict | abstain (+ synonyms)
+  "confidence": 0.9,            // [0.0, 1.0]
+  "note": "burn-down at zero",
+  "citations": [
+    { "source": "tracker:P0", "locator": "filter status=closed -> 0 rows" }
+  ]
+}
