@@ -61,3 +61,60 @@ quorumforge/
 │   ├── lib.rs                public API and the end-to-end `run`
 │   ├── model.rs              Agent / Claim / Position / Deliberation
 │   ├── json.rs               a compact, idempotent JSON codec
+│   ├── parse.rs              line-oriented (.qf) and JSON parsers
+│   ├── normalize.rs          claim canonicalization + clustering
+│   ├── adjudicate.rs         the weighted verdict engine
+│   ├── bundle.rs             deterministic, digest-stamped bundles
+│   ├── report.rs             text + JSON report renderers
+│   └── bin/quorumforge.rs    the `quorumforge` command-line tool
+├── tests/                    focused Rust integration tests
+├── viewer/                   TypeScript council viewer (dependency-light)
+│   └── src/                  report model, ANSI + HTML renderers, CLI, tests
+├── samples/                  rich sample deliberations (.qf and .json)
+├── docs/
+│   ├── EVIDENCE.md           the normative input-format reference
+│   └── assets/               the two animated SVGs on this page
+├── Cargo.toml   Makefile   LICENSE   CHANGELOG.md   .gitignore
+└── .github/workflows/ci.yml
+```
+
+Two languages, one contract: the Rust core emits a `quorumforge.report.v1` JSON
+document, and the TypeScript viewer consumes exactly that schema. Neither side
+pulls in a runtime dependency — the Rust crate is standard-library-only, and the
+viewer's sole `devDependency` is the TypeScript compiler itself.
+
+---
+
+## Quick start
+
+You need a Rust toolchain (1.74+) for the engine and Node.js (18+) plus npm for
+the optional viewer. Nothing else.
+
+```sh
+# 1. Build and test the Rust engine.
+cargo build --release
+cargo test
+
+# 2. Adjudicate a sample deliberation as a console report.
+cargo run --release -- adjudicate samples/cache-coherence.qf
+```
+
+That last command prints something like:
+
+```text
+========================================================================
+QUORUMFORGE VERDICT  ::  cache-coherence
+Question: Is the distributed write-back cache coherent under concurrent
+          writes?
+========================================================================
+Claims: 5   Consensus: 1   Contested: 1   Split: 2   Unsupported: 1
+Council cohesion: 60.1%   Policy: consensus>=0.66, dissent<0.34
+------------------------------------------------------------------------
+[=] [c1] Writes to a single key are linearizable.
+     consensus/affirmed topic=linearizability  polarity=+1.00  mass=4.33  ...
+[!] [c2] Writes across multiple keys are linearizable.
+     contested/negated topic=linearizability  polarity=-0.24  ...
+     dissenting: ada, boro
+...
+```
+
