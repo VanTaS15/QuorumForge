@@ -175,3 +175,61 @@ OPTIONS
 ```
 
 ### Real invocations
+
+```sh
+# Text report from a line-oriented file.
+cargo run -- adjudicate samples/cache-coherence.qf
+
+# JSON report from a JSON deliberation.
+cargo run -- adjudicate --format json samples/migration-strategy.json
+
+# See how claim normalization collapses hedged variants.
+cargo run -- inspect samples/normalization.qf
+
+# Build a deterministic bundle and verify its integrity digest.
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
+cargo run -- verify bundle.json          # -> "digest OK: ..."
+
+# Read from stdin (format assumed .qf unless --json is given).
+cat samples/cache-coherence.qf | cargo run -- adjudicate -
+
+# Loosen the policy so a 70/30 lean reads as consensus.
+cargo run -- adjudicate --consensus 0.3 --dissent 0.5 samples/cache-coherence.qf
+```
+
+Exit codes: `0` success, `2` usage error, `3` parse/validation error, `4` a
+`verify` digest mismatch. These make QuorumForge friendly to shell pipelines and
+CI gates.
+
+---
+
+## How the prism actually bends light
+
+The scoring model is deliberately simple enough to reproduce with a pocket
+calculator. Every non-abstaining position casts a **signed vote**:
+
+```
+vote = sign(stance) · agent_weight · confidence
+```
+
+with `sign(support) = +1` and `sign(contradict) = −1`. Confidence is clamped to
+`[0, 1]` defensively. For a claim, sum the support votes into `S` and the
+contradiction magnitudes into `C`, then:
+
+```
+decisive_mass = S + C
+polarity      = (S − C) / decisive_mass       ∈ [−1, +1]
+dissent_ratio = min(S, C) / decisive_mass      ∈ [0, 0.5]
+```
+
+`polarity` is *which way* the light bends; `decisive_mass` is *how bright* the
+beam is; `dissent_ratio` is *how much* of the beam scatters the other way.
+
+<div align="center">
+<img src="docs/assets/dissent-map.svg" alt="A ring of agents around a central claim, with green support threads and red dissent threads pulsing inward" width="620" />
+</div>
+
+The classifier then reads those three numbers against a **policy** (see below):
+
+- **unsupported** if `decisive_mass ≤ minimum_mass`
+- **consensus** if `|polarity| ≥ consensus_threshold` **and** `dissent_ratio < dissent_ceiling`
