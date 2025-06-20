@@ -114,3 +114,35 @@ A single object with these top-level keys:
 
 // position
 {
+  "agent": "ana",
+  "claim": "r1",
+  "stance": "support",          // support | contradict | abstain (+ synonyms)
+  "confidence": 0.9,            // [0.0, 1.0]
+  "note": "burn-down at zero",
+  "citations": [
+    { "source": "tracker:P0", "locator": "filter status=closed -> 0 rows" }
+  ]
+}
+```
+
+Field defaults match the line format: `weight` and `confidence` default to
+`1.0`; `role`, `note`, `topic`, `source`, and `locator` default to empty;
+`citations` defaults to an empty list.
+
+### 3.2 Equivalent example
+
+```json
+{
+  "id": "demo",
+  "question": "Is the release ready to ship?",
+  "agents": [
+    { "id": "ana", "name": "Ana Ito", "weight": 1.4, "role": "release-manager" },
+    { "id": "ben", "name": "Ben Osei", "weight": 1.0, "role": "qa" }
+  ],
+  "claims": [
+    { "id": "r1", "topic": "quality", "text": "All P0 bugs are resolved." }
+  ],
+  "positions": [
+    { "agent": "ana", "claim": "r1", "stance": "support", "confidence": 0.9,
+      "note": "burn-down at zero",
+      "citations": [ { "source": "tracker:P0", "locator": "0 open rows" } ] },
