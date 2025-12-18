@@ -135,3 +135,60 @@ cd ..
 # Pipe a JSON report from the engine into the viewer's ANSI renderer.
 cargo run --release -- adjudicate --format json samples/cache-coherence.qf \
   | node viewer/dist/cli.js -
+
+# Or produce a standalone, self-contained HTML council page.
+cargo run --release -- adjudicate --format json samples/migration-strategy.json \
+  | node viewer/dist/cli.js --html - -o council.html
+```
+
+The console renderer draws unicode influence meters and colour-codes each
+verdict band. The HTML renderer emits a single file with **all** styling inlined
+— no remote fonts, scripts, or images — so it opens offline and can be committed
+as an artifact.
+
+```sh
+# Run the viewer's own test suite.
+cd viewer && npm test
+```
+
+---
+
+## The command-line tool
+
+```text
+quorumforge <command> [options] <evidence-file | ->
+
+COMMANDS
+  adjudicate   Parse, normalize, and print a verdict report (text or json).
+  bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
+  verify       Re-derive a bundle's digest from its body and confirm it.
+  inspect      Print the parsed, normalized deliberation as JSON.
+  help         Show usage.
+
+OPTIONS
+  --format <text|json>   Report format for `adjudicate` (default: text).
+  --consensus <0..1>     Consensus polarity threshold (default: 0.66).
+  --dissent <0..1>       Dissent ceiling (default: 0.34).
+  --min-mass <n>         Minimum decisive mass to escape unsupported.
+  -o, --output <path>    Write output to a file instead of stdout.
+  --json                 Treat stdin / extensionless input as JSON.
+```
+
+### Real invocations
+
+```sh
+# Text report from a line-oriented file.
+cargo run -- adjudicate samples/cache-coherence.qf
+
+# JSON report from a JSON deliberation.
+cargo run -- adjudicate --format json samples/migration-strategy.json
+
+# See how claim normalization collapses hedged variants.
+cargo run -- inspect samples/normalization.qf
+
+# Build a deterministic bundle and verify its integrity digest.
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
+cargo run -- verify bundle.json          # -> "digest OK: ..."
+
+# Read from stdin (format assumed .qf unless --json is given).
+cat samples/cache-coherence.qf | cargo run -- adjudicate -
