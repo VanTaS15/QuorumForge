@@ -54,3 +54,22 @@ test-viewer:
 	cd viewer && $(NPM) install --no-audit --no-fund && $(NPM) test
 
 .PHONY: demo
+demo: build
+	@echo "== text report =="
+	$(CARGO) run --release -- adjudicate $(SAMPLE_QF)
+	@echo "== JSON report piped through the viewer =="
+	$(CARGO) run --release -- adjudicate --format json $(SAMPLE_JSON) | $(NODE) viewer/dist/cli.js -
+
+.PHONY: bundle
+bundle: build-rust
+	$(CARGO) run --release -- bundle $(SAMPLE_QF) -o bundle.json
+	$(CARGO) run --release -- verify bundle.json
+
+.PHONY: fmt
+fmt:
+	$(CARGO) fmt
+
+.PHONY: clean
+clean:
+	$(CARGO) clean
+	rm -rf viewer/node_modules viewer/dist bundle.json council.html
