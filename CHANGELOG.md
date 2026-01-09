@@ -43,3 +43,10 @@ adjudication engine with a matching council viewer.
 
 ### Notes
 
+- The engine performs no network access and carries no runtime dependencies.
+- Verdicts are fully deterministic: identical inputs yield identical report
+  bytes and identical bundle digests.
+
+[0.1.0]: https://example.invalid/quorumforge/releases/tag/v0.1.0
+
+// draft note 1
