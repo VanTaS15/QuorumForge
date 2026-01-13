@@ -249,3 +249,143 @@ Two agents weigh in on one claim. Ada (weight `1.5`) supports at confidence
 S = 1.5 · 0.8 = 1.20        C = 1.0 · 0.6 = 0.60
 decisive_mass = 1.80
 polarity      = (1.20 − 0.60) / 1.80 = +0.333
+dissent_ratio = 0.60 / 1.80           =  0.333
+```
+
+Under the default policy (`consensus_threshold = 0.66`, `dissent_ceiling =
+0.34`): `dissent_ratio 0.333 < 0.34`, so it is not contested; `|polarity| 0.333
+< 0.66`, so it is not consensus. The verdict is **split, affirmed**.
+
+---
+
+## Tuning the policy
+
+Three knobs govern classification. All are validated to sensible ranges.
+
+| Knob | Flag | Default | Effect |
+|------|------|:-------:|--------|
+| `consensus_threshold` | `--consensus` | `0.66` | How lopsided a claim must be to count as consensus. |
+| `dissent_ceiling` | `--dissent` | `0.34` | How much losing-side mass tips a claim into "contested". |
+| `minimum_mass` | `--min-mass` | `~0` | How much decisive weight is needed to escape "unsupported". |
+
+Raising `consensus_threshold` makes the council harder to satisfy. Lowering
+`dissent_ceiling` makes it quicker to flag division. The defaults encode a
+familiar rule of thumb: **a two-thirds supermajority with limited dissent reads
+as consensus.**
+
+---
+
+## Deterministic bundles
+
+A **bundle** is a canonical, self-contained snapshot of a deliberation *and* its
+verdicts, stamped with a content digest (a small, dependency-free FNV-1a hash).
+Bundles are byte-stable — the same inputs always produce the same bytes — so
+they diff cleanly and can be checksummed in CI.
+
+```sh
+cargo run -- bundle samples/cache-coherence.qf -o bundle.json
+cargo run -- verify bundle.json
+```
+
+The digest covers the *compact* canonical body with object keys in a fixed
+order, positions sorted by `(claim, agent, stance)`, and all floating-point
+values snapped to a six-decimal grid. That last detail is load-bearing: it makes
+the JSON writer **idempotent**, so a bundle survives a round trip through the
+parser without changing its digest. Mutate any field and `verify` returns exit
+code `4`.
+
+---
+
+## Testing
+
+Both halves ship with focused tests and are exercised together in CI.
+
+```sh
+# Rust: unit tests, integration tests, and doctests.
+cargo test
+
+# TypeScript: compile, then run the assertion-based renderer suite.
+cd viewer && npm test
+
+# Everything, via the Makefile.
+make test
+```
+
+The Rust suite covers the four verdict outcomes, weight and confidence scaling,
+policy tuning, parser error paths, JSON round-trip stability (including unicode
+escapes and surrogate pairs), bundle determinism, and tamper detection. The
+viewer suite covers report validation, ANSI vs. plain output, HTML escaping, and
+render determinism.
+
+---
+
+## Design commitments
+
+- **No orchestration.** QuorumForge judges a transcript; it never runs agents.
+- **No dependencies.** Rust core is std-only; the viewer's only build-time
+  dependency is `tsc`. There is no `Cargo.lock` churn and no `node_modules`
+  supply chain to audit at runtime.
+- **Determinism first.** Ordered maps, sorted positions, snapped floats, and an
+  idempotent JSON writer mean identical inputs give identical bytes.
+- **Auditability over cleverness.** Every intermediate quantity (masses,
+  polarity, dissent) is retained in the report so a human can check the math.
+- **Offline forever.** No network calls, no remote media, no telemetry.
+
+---
+
+## Limitations
+
+QuorumForge is intentionally narrow. Know the edges before you rely on it.
+
+- **No semantic understanding.** Claim normalization is lexical only — it folds
+  hedges and contractions and collapses whitespace. Two claims that *mean* the
+  same thing but share no words are treated as distinct. There is no embedding
+  model, paraphrase detector, or entailment check, and adding one would break
+  determinism.
+- **No provenance grading.** Citations are recorded and counted, but their
+  *quality* is not assessed. A citation to a rigorous proof and a citation to a
+  hunch count the same toward the citation tally. Weight your agents, not your
+  sources.
+- **Confidence is self-reported.** The engine trusts (after clamping) whatever
+  confidence an agent declares. It cannot detect overconfidence or calibration
+  drift.
+- **Weights are exogenous.** Credibility weights come from the input file.
+  QuorumForge does not learn or update them; garbage weights yield garbage
+  verdicts.
+- **Independence is assumed.** The scoring model treats positions as independent
+  votes. It does not detect collusion, duplicated reasoning, or agents that are
+  really one source wearing many hats.
+- **Single-round.** A deliberation is a static snapshot. There is no notion of
+  rebuttal rounds, position changes over time, or convergence dynamics beyond
+  what the final transcript records.
+- **Numbers are `f64` snapped to six decimals.** This is ample for adjudication
+  but is not arbitrary-precision arithmetic; do not treat masses as exact
+  rationals.
+- **The FNV-1a digest is an integrity fingerprint, not a security hash.** It
+  detects accidental drift and casual tampering, not a determined adversary.
+  Do not use it as a cryptographic seal.
+
+---
+
+## A note on the two encodings
+
+The line-oriented `.qf` format is built for humans and version control: comments,
+one record per line, and clean diffs. The JSON format is built for machines that
+generate deliberations programmatically. They are information-equivalent and
+converge on the same model — pick whichever fits the hand that writes it. The
+full grammar and schema live in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
+
+---
+
+## License & history
+
+Released under the [MIT License](LICENSE). See [`CHANGELOG.md`](CHANGELOG.md) for
+the release history.
+
+<div align="center">
+
+*Bring the argument. QuorumForge brings the light.*
+
+</div>
+
+// draft note 2
