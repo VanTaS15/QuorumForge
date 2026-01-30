@@ -30,3 +30,27 @@
     { "agent": "pearl", "claim": "m2", "stance": "support", "confidence": 0.8, "note": "Bulkheads become natural once split." },
     { "agent": "sol",   "claim": "m2", "stance": "support", "confidence": 0.7, "note": "Fewer shared-fate deploys." },
     { "agent": "twyla", "claim": "m2", "stance": "abstain",  "confidence": 0.5, "note": "Reliability gains are real but out of my lane." },
+
+    { "agent": "twyla", "claim": "m3", "stance": "contradict", "confidence": 0.85,
+      "note": "Infra and on-call costs rise before any savings appear.",
+      "citations": [ { "source": "model:tco-projection", "locator": "break-even at quarter 7, not 4" } ] },
+    { "agent": "sol",   "claim": "m3", "stance": "contradict", "confidence": 0.6, "note": "Dual-run period is expensive." },
+    { "agent": "pearl", "claim": "m3", "stance": "support",    "confidence": 0.4, "note": "Optimistic on velocity gains." },
+
+    { "agent": "sol",   "claim": "m4", "stance": "support", "confidence": 0.85, "note": "Independent pipelines unblock parallel releases." },
+    { "agent": "pearl", "claim": "m4", "stance": "support", "confidence": 0.8,  "note": "Contract tests replace lockstep deploys." },
+    { "agent": "rune",  "claim": "m4", "stance": "support", "confidence": 0.75, "note": "Rollbacks become per-service." },
+    { "agent": "twyla", "claim": "m4", "stance": "support", "confidence": 0.6,  "note": "Fewer merge trains." },
+
+    { "agent": "vex",   "claim": "m5", "stance": "support",    "confidence": 0.7, "note": "Explicit service identities and mTLS.",
+      "citations": [ { "source": "policy:zero-trust", "locator": "section 4: per-service identity" } ] },
+    { "agent": "rune",  "claim": "m5", "stance": "support",    "confidence": 0.5, "note": "Smaller trust zones." },
+    { "agent": "sol",   "claim": "m5", "stance": "contradict", "confidence": 0.55, "note": "More network surface to secure." },
+    { "agent": "pearl", "claim": "m5", "stance": "contradict", "confidence": 0.45, "note": "Token sprawl is a new risk." },
+
+    { "agent": "sol",   "claim": "m6", "stance": "abstain", "confidence": 0.5, "note": "Timing depends on the roadmap freeze." },
+    { "agent": "twyla", "claim": "m6", "stance": "abstain", "confidence": 0.5, "note": "Budget cycle not aligned." }
+  ]
+}
+
+// draft note 9
