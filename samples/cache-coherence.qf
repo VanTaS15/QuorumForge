@@ -33,3 +33,30 @@ pos  | cyan | c1 | support    | 0.90 | independent Alloy model agrees
 cite | cyan | c1 | model:alloy-cache | scope 6, no counterexample
 pos  | echo | c1 | support    | 0.85 | code review confirms single-key CAS path
 pos  | boro | c1 | support    | 0.70 | convinced after the second model run
+pos  | dice | c1 | abstain    | 0.50 | no field data on single-key contention yet
+
+# --- Positions: c2 (expect contested — genuine disagreement) ---------------
+pos  | ada  | c2 | support    | 0.60 | two-phase commit path looks sound on paper
+pos  | cyan | c2 | contradict | 0.80 | found a cross-key stale-read window in the model
+cite | cyan | c2 | model:alloy-cache | counterexample trace cross-key-stale-7
+pos  | echo | c2 | contradict | 0.75 | reproduced Cyan's trace in a unit test
+cite | echo | c2 | test:it_cross_key_stale | fails on commit reordering
+pos  | boro | c2 | support    | 0.50 | rare enough to ignore in practice
+pos  | dice | c2 | contradict | 0.65 | saw a matching anomaly in staging once
+
+# --- Positions: c3 (expect split — leans but not decisive) -----------------
+pos  | ada  | c3 | support    | 0.55 | recovery log replay is deterministic
+pos  | dice | c3 | support    | 0.60 | crash drills mostly recovered cleanly
+pos  | boro | c3 | contradict | 0.40 | one drill left an orphaned dirty page
+
+# --- Positions: c4 (expect split / performance leaning) --------------------
+pos  | boro | c4 | contradict | 0.85 | measured 8% coherence traffic at peak
+cite | boro | c4 | bench:peak-load-2024 | mean 8.1%, p99 12%
+pos  | dice | c4 | support    | 0.45 | typical load stayed under 5%
+pos  | ada  | c4 | abstain    | 0.50 | depends heavily on workload shape
+
+# --- Positions: c5 (expect unsupported — only abstentions) -----------------
+pos  | echo | c5 | abstain    | 0.50 | needs a dedicated staleness harness
+pos  | dice | c5 | abstain    | 0.50 | no instrumentation for acknowledged-write ordering
+
+// draft note 8
