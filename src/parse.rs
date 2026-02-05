@@ -357,4 +357,4 @@ pub fn validate(delib: &Deliberation) -> Result<(), ParseError> {
         }
     }
     Ok(())
-// review note
+}
