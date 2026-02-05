@@ -179,4 +179,4 @@ pub fn normalized_claims(delib: &Deliberation) -> Vec<Claim> {
             c
         })
         .collect()
-// review note
+}
