@@ -356,4 +356,4 @@ fn take_f64(args: &[String], i: &mut usize, name: &str) -> Result<f64, CliError>
     let v = take_value(args, i, name)?;
     v.parse::<f64>()
         .map_err(|_| CliError::usage(format!("option {} expects a number, got '{}'", name, v)))
-// review note
+}
