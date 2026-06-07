@@ -59,4 +59,4 @@ pos  | ada  | c4 | abstain    | 0.50 | depends heavily on workload shape
 pos  | echo | c5 | abstain    | 0.50 | needs a dedicated staleness harness
 pos  | dice | c5 | abstain    | 0.50 | no instrumentation for acknowledged-write ordering
 
-// draft note 20
+// draft note 32
