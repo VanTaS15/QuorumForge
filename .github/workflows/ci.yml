@@ -87,4 +87,4 @@ jobs:
           node dist/cli.js --html report.json -o council.html
           test -s council.html && echo "HTML rendered ($(wc -c < council.html) bytes)"
 
-// draft note 23
+// draft note 35
