@@ -214,4 +214,4 @@ The classifier applies a [`Policy`](../README.md#tuning-the-policy):
 A `consensus` or `split` is `affirmed` when `polarity >= 0`, otherwise
 `negated`.
 
-// draft note 29
+// draft note 41
