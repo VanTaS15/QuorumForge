@@ -1,26 +1,26 @@
 [package]
-name = "franco"
+name = "bio999"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.74"
 description = "A free-running synthetic organism. An ingest kernel that reads the open web, commits a growing corpus, and never finishes."
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/VanTaS15/FRANCO"
+repository = "https://github.com/VanTaS15/bio999"
 keywords = ["ingest", "corpus", "crawler", "organism", "cli"]
 categories = ["command-line-utilities", "web-programming"]
 
-# FRANCO is deliberately dependency-free. The engine, parser, minimal
+# bio999 is deliberately dependency-free. The engine, parser, minimal
 # JSON codec, and CLI are all built on the Rust standard library so that
 # verdicts are reproducible on any toolchain without a lockfile churn.
 
 [lib]
-name = "franco"
+name = "bio999"
 path = "src/lib.rs"
 
 [[bin]]
-name = "franco"
-path = "src/bin/franco.rs"
+name = "bio999"
+path = "src/bin/bio999.rs"
 
 [profile.release]
 opt-level = 3
