@@ -161,5 +161,3 @@ main().catch((err) => {
   process.stderr.write(`qf-view: ${(err as Error).message}\n`);
   process.exit(1);
 });
-
-// draft note 39
