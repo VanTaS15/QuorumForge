@@ -38,5 +38,3 @@ declare module "node:assert/strict" {
   const assert: AssertStrict;
   export default assert;
 }
-
-// draft note 40
