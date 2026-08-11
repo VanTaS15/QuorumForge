@@ -1,4 +1,4 @@
-//! Parsers for the two documented FRANCO evidence formats.
+//! Parsers for the two documented bio999 evidence formats.
 //!
 //! ## Line-oriented format (`.qf`)
 //!

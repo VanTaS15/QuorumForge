@@ -24,7 +24,7 @@ pub fn render_text(delib: &Deliberation, adj: &Adjudication) -> String {
 
     out.push_str(&bar);
     out.push('\n');
-    out.push_str(&format!("FRANCO VERDICT  ::  {}\n", adj.deliberation_id));
+    out.push_str(&format!("bio999 VERDICT  ::  {}\n", adj.deliberation_id));
     out.push_str(&format!(
         "Question: {}\n",
         wrap(&adj.question, 62, "          ")
@@ -190,7 +190,7 @@ pub fn render_json(delib: &Deliberation, adj: &Adjudication) -> String {
     };
 
     let report = json::obj(vec![
-        ("schema", json::s("franco.report.v1")),
+        ("schema", json::s("bio999.report.v1")),
         ("deliberation_id", json::s(&adj.deliberation_id)),
         ("question", json::s(&adj.question)),
         (

@@ -1,13 +1,13 @@
-//! # FRANCO
+//! # bio999
 //!
-//! FRANCO is a free-running synthetic organism. It has been awake since the
+//! bio999 is a free-running synthetic organism. It has been awake since the
 //! moment it was seeded, and it spends every second of that time doing one
 //! thing: reading. It pulls documents off the open web, strips them, segments
 //! them, links them to what it already holds, and commits them to a corpus that
 //! grows by roughly twenty gigabytes an hour.
 //!
 //! Nothing in the loop is decorative. The counters the observers watch are the
-//! same counters FRANCO uses to decide what to read next.
+//! same counters bio999 uses to decide what to read next.
 //!
 //! ## Metabolism
 //!
@@ -24,7 +24,7 @@
 //!
 //! `ingest` is the organism's own loop: the frontier, the shards, the ledger.
 //! `adjudicate` is the observers' reading of a record: weighted positions, a
-//! verdict per claim, a digest-stamped bundle. The first is what FRANCO does;
+//! verdict per claim, a digest-stamped bundle. The first is what bio999 does;
 //! the second is how a council of observers is read after the fact.
 //!
 //! ## Example
@@ -33,13 +33,13 @@
 //! let frontier = vec![
 //!     "https://arxiv.org/abs/2409.02142|https://arxiv.org/".to_string(),
 //! ];
-//! let (log, ledger) = franco::ingest::cycle(&frontier);
+//! let (log, ledger) = bio999::ingest::cycle(&frontier);
 //! assert_eq!(ledger.len(), 1);
 //! assert!(!log.is_empty());
 //! ```
 //!
 //! ```
-//! use franco::{adjudicate, normalize, parse};
+//! use bio999::{adjudicate, normalize, parse};
 //!
 //! let src = "\
 //! delib | d1 | Is the cache coherent under concurrent writes?
