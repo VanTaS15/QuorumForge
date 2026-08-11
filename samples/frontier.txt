@@ -1,0 +1,12 @@
+# franco frontier — one url per line, optional anchor after a pipe
+# domains are real; robots.txt and crawl-delay are respected
+https://arxiv.org/list/cs.DC/recent|https://arxiv.org/
+https://www.rfc-editor.org/rfc/rfc9110.html|https://www.rfc-editor.org/
+https://en.wikipedia.org/wiki/Distributed_hash_table|https://en.wikipedia.org/
+https://docs.rs/|https://doc.rust-lang.org/
+https://www.usenix.org/conferences|https://www.usenix.org/
+https://lwn.net/|https://lwn.net/
+https://www.ietf.org/standards/|https://www.ietf.org/
+https://crates.io/|https://www.rust-lang.org/
+https://news.ycombinator.com/|https://news.ycombinator.com/
+https://www.nature.com/|https://www.nature.com/
