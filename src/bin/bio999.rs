@@ -1,9 +1,9 @@
-//! The `franco` command-line interface.
+//! The `bio999` command-line interface.
 //!
 //! Usage:
 //!
 //! ```text
-//! franco <command> [options] <evidence-file>
+//! bio999 <command> [options] <evidence-file>
 //!
 //! Commands:
 //!   adjudicate   Parse, normalize, and print a text or JSON verdict report.
@@ -26,16 +26,16 @@
 //! Exit codes: `0` success, `2` usage error, `3` parse/validation error,
 //! `4` verify mismatch.
 
-use franco::adjudicate::{adjudicate, Policy};
-use franco::{bundle, json, normalize, parse, report};
+use bio999::adjudicate::{adjudicate, Policy};
+use bio999::{bundle, json, normalize, parse, report};
 use std::io::{Read, Write};
 use std::process::ExitCode;
 
 const USAGE: &str = "\
-franco — multi-agent evidence adjudication engine
+bio999 — multi-agent evidence adjudication engine
 
 USAGE:
-    franco <command> [options] <evidence-file | ->
+    bio999 <command> [options] <evidence-file | ->
 
 COMMANDS:
     ingest       Run one cycle over a frontier file and print the log.
@@ -55,11 +55,11 @@ OPTIONS:
     --json                 Treat stdin / extensionless input as JSON.
 
 EXAMPLES:
-    franco adjudicate samples/cache-coherence.qf
-    franco adjudicate --format json samples/vaccine-efficacy.json
-    franco bundle samples/cache-coherence.qf -o bundle.json
-    franco verify bundle.json
-    cat samples/cache-coherence.qf | franco adjudicate -
+    bio999 adjudicate samples/cache-coherence.qf
+    bio999 adjudicate --format json samples/vaccine-efficacy.json
+    bio999 bundle samples/cache-coherence.qf -o bundle.json
+    bio999 verify bundle.json
+    cat samples/cache-coherence.qf | bio999 adjudicate -
 ";
 
 fn main() -> ExitCode {
@@ -67,7 +67,7 @@ fn main() -> ExitCode {
     match run(&args) {
         Ok(code) => code,
         Err(err) => {
-            eprintln!("franco: {}", err.message);
+            eprintln!("bio999: {}", err.message);
             err.code
         }
     }
@@ -155,7 +155,7 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
         .map_err(|e| CliError::usage(format!("invalid policy: {}", e)))?;
 
     if command == "status" {
-        print!("{}", franco::ingest::status());
+        print!("{}", bio999::ingest::status());
         return Ok(ExitCode::SUCCESS);
     }
 
@@ -166,7 +166,7 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
         let contents = std::fs::read_to_string(&path)
             .map_err(|e| CliError::parse(format!("cannot read '{}': {}", path, e)))?;
         let lines: Vec<String> = contents.lines().map(|l| l.to_string()).collect();
-        let (log, ledger) = franco::ingest::cycle(&lines);
+        let (log, ledger) = bio999::ingest::cycle(&lines);
         let mut out = String::new();
         for line in &log {
             out.push_str(line);
@@ -226,7 +226,7 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
                 )?;
                 Ok(ExitCode::SUCCESS)
             } else {
-                eprintln!("franco: digest MISMATCH — bundle body does not match its stored digest");
+                eprintln!("bio999: digest MISMATCH — bundle body does not match its stored digest");
                 Ok(ExitCode::from(4))
             }
         }
@@ -238,7 +238,7 @@ fn load_adjudicated(
     path: &str,
     contents: &str,
     policy: &Policy,
-) -> Result<(franco::Deliberation, franco::Adjudication), CliError> {
+) -> Result<(bio999::Deliberation, bio999::Adjudication), CliError> {
     let mut delib =
         parse::parse_auto(path, contents).map_err(|e| CliError::parse(e.to_string()))?;
     normalize::normalize_deliberation(&mut delib);
@@ -271,7 +271,7 @@ fn verify_bundle(contents: &str) -> Result<bool, CliError> {
     Ok(recomputed == stored)
 }
 
-fn inspect_json(delib: &franco::Deliberation) -> String {
+fn inspect_json(delib: &bio999::Deliberation) -> String {
     let agents: Vec<json::Json> = delib
         .agents
         .values()
