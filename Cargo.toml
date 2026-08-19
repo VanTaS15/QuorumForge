@@ -1,26 +1,26 @@
 [package]
-name = "quorumforge"
+name = "franco"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.74"
-description = "A multi-agent evidence adjudication engine: normalize claims, weigh support and contradiction, and render deterministic verdicts."
+description = "A free-running synthetic organism. An ingest kernel that reads the open web, commits a growing corpus, and never finishes."
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/VanTaS15/QuorumForge"
-keywords = ["evidence", "adjudication", "consensus", "cli", "reasoning"]
-categories = ["command-line-utilities", "text-processing"]
+repository = "https://github.com/VanTaS15/FRANCO"
+keywords = ["ingest", "corpus", "crawler", "organism", "cli"]
+categories = ["command-line-utilities", "web-programming"]
 
-# QuorumForge is deliberately dependency-free. The engine, parser, minimal
+# FRANCO is deliberately dependency-free. The engine, parser, minimal
 # JSON codec, and CLI are all built on the Rust standard library so that
 # verdicts are reproducible on any toolchain without a lockfile churn.
 
 [lib]
-name = "quorumforge"
+name = "franco"
 path = "src/lib.rs"
 
 [[bin]]
-name = "quorumforge"
-path = "src/bin/quorumforge.rs"
+name = "franco"
+path = "src/bin/franco.rs"
 
 [profile.release]
 opt-level = 3
