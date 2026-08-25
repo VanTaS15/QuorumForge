@@ -39,3 +39,126 @@ const SAMPLE: Report = {
       supporters: 2,
       dissenters: 0,
       abstentions: 0,
+      citations: 1,
+      majority_agents: ["a", "b"],
+      minority_agents: [],
+    },
+    {
+      claim: "c2",
+      text: "The sky is green.",
+      topic: "optics",
+      normalized: "the sky is green",
+      outcome: "contested",
+      affirmed: false,
+      polarity: -0.2,
+      decisive_mass: 2.0,
+      support_mass: 0.8,
+      contradiction_mass: 1.2,
+      dissent_ratio: 0.4,
+      supporters: 1,
+      dissenters: 1,
+      abstentions: 0,
+      citations: 0,
+      majority_agents: ["b"],
+      minority_agents: ["a"],
+    },
+    {
+      claim: "c3",
+      text: "The sky tastes sweet.",
+      topic: "misc",
+      normalized: "the sky tastes sweet",
+      outcome: "unsupported",
+      affirmed: true,
+      polarity: 0,
+      decisive_mass: 0,
+      support_mass: 0,
+      contradiction_mass: 0,
+      dissent_ratio: 0,
+      supporters: 0,
+      dissenters: 0,
+      abstentions: 2,
+      citations: 0,
+      majority_agents: [],
+      minority_agents: [],
+    },
+  ],
+};
+
+let passed = 0;
+function test(name: string, fn: () => void): void {
+  try {
+    fn();
+    passed++;
+    process.stdout.write(`  ok  ${name}\n`);
+  } catch (err) {
+    process.stderr.write(`FAIL  ${name}\n      ${(err as Error).message}\n`);
+    process.exitCode = 1;
+  }
+}
+
+test("parseReport accepts a valid report", () => {
+  const r = parseReport(JSON.parse(JSON.stringify(SAMPLE)));
+  assert.equal(r.deliberation_id, "demo");
+  assert.equal(r.verdicts.length, 3);
+});
+
+test("parseReport rejects a wrong schema", () => {
+  assert.throws(() => parseReport({ schema: "nope" }), /unexpected schema/);
+});
+
+test("parseReport rejects a non-object", () => {
+  assert.throws(() => parseReport(42), /must be a JSON object/);
+});
+
+test("console output contains outcome labels", () => {
+  const out = renderConsole(SAMPLE, { noColor: true });
+  assert.ok(out.includes("CONSENSUS"));
+  assert.ok(out.includes("CONTESTED"));
+  assert.ok(out.includes("UNSUPPORTED"));
+});
+
+test("console output lists dissenting agents", () => {
+  const out = renderConsole(SAMPLE, { noColor: true });
+  assert.ok(out.includes("dissent: a"), "c2 dissent lists agent a");
+});
+
+test("no-color output has no ANSI escape codes", () => {
+  const out = renderConsole(SAMPLE, { noColor: true });
+  // eslint-disable-next-line no-control-regex
+  assert.ok(!/\x1b\[/.test(out), "should contain no escape sequences");
+});
+
+test("colored output does contain ANSI codes", () => {
+  const out = renderConsole(SAMPLE, { noColor: false });
+  // eslint-disable-next-line no-control-regex
+  assert.ok(/\x1b\[/.test(out), "should contain escape sequences");
+});
+
+test("console output shows the roster with both agents", () => {
+  const out = renderConsole(SAMPLE, { noColor: true });
+  assert.ok(out.includes("Ada"));
+  assert.ok(out.includes("Bo"));
+});
+
+test("html output is a self-contained document", () => {
+  const html = renderHtml(SAMPLE);
+  assert.ok(html.startsWith("<!DOCTYPE html>"));
+  assert.ok(html.includes("<style>"), "styles are inlined");
+  assert.ok(!/https?:\/\//.test(html), "no remote resources referenced");
+  assert.ok(html.includes("The sky scatters blue light."));
+});
+
+test("html escapes angle brackets in claim text", () => {
+  const injected: Report = JSON.parse(JSON.stringify(SAMPLE));
+  injected.verdicts[0].text = "1 < 2 && 3 > 2";
+  const html = renderHtml(injected);
+  assert.ok(html.includes("1 &lt; 2 &amp;&amp; 3 &gt; 2"));
+  assert.ok(!html.includes("1 < 2 &&"));
+});
+
+test("renderers are deterministic", () => {
+  assert.equal(renderConsole(SAMPLE, {}), renderConsole(SAMPLE, {}));
+  assert.equal(renderHtml(SAMPLE), renderHtml(SAMPLE));
+});
+
+process.stdout.write(`\n${passed} viewer test(s) passed\n`);
