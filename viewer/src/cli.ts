@@ -79,3 +79,85 @@ function parseArgs(argv: string[]): Options {
         if (opts.output === null) fail("--output requires a path");
         break;
       default:
+        if (arg.startsWith("--")) {
+          fail(`unknown option '${arg}'`);
+        } else if (opts.input === null) {
+          opts.input = arg;
+        } else {
+          fail(`unexpected extra argument '${arg}'`);
+        }
+    }
+  }
+  return opts;
+}
+
+function fail(message: string): never {
+  process.stderr.write(`qf-view: ${message}\n`);
+  process.exit(2);
+}
+
+function readStdin(): Promise<string> {
+  return new Promise((resolve) => {
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (chunk) => {
+      data += typeof chunk === "string" ? chunk : String(chunk);
+    });
+    process.stdin.on("end", () => resolve(data));
+  });
+}
+
+async function main(): Promise<void> {
+  const argv = process.argv.slice(2);
+  if (argv.length === 0) {
+    process.stdout.write(HELP);
+    process.exit(2);
+  }
+  const opts = parseArgs(argv);
+  if (opts.input === null) {
+    fail("no report file given (use '-' for stdin)");
+  }
+
+  let raw: string;
+  if (opts.input === "-") {
+    raw = await readStdin();
+  } else {
+    try {
+      raw = readFileSync(opts.input, "utf8");
+    } catch (err) {
+      fail(`cannot read '${opts.input}': ${(err as Error).message}`);
+    }
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (err) {
+    fail(`input is not valid JSON: ${(err as Error).message}`);
+  }
+
+  let report;
+  try {
+    report = parseReport(parsed);
+  } catch (err) {
+    fail((err as Error).message);
+  }
+
+  const rendered = opts.html
+    ? renderHtml(report)
+    : renderConsole(report, {
+        noColor: opts.noColor || opts.output !== null,
+        width: opts.width,
+      });
+
+  if (opts.output) {
+    writeFileSync(opts.output, rendered);
+  } else {
+    process.stdout.write(rendered);
+  }
+}
+
+main().catch((err) => {
+  process.stderr.write(`qf-view: ${(err as Error).message}\n`);
+  process.exit(1);
+});
