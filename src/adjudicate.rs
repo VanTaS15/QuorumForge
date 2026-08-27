@@ -67,7 +67,8 @@ impl Default for Policy {
 impl Policy {
     /// Validate a policy, returning a human-readable error on nonsense inputs.
     pub fn validate(&self) -> Result<(), String> {
-        if !self.consensus_threshold.is_finite() || !(0.0..=1.0).contains(&self.consensus_threshold) {
+        if !self.consensus_threshold.is_finite() || !(0.0..=1.0).contains(&self.consensus_threshold)
+        {
             return Err(format!(
                 "consensus_threshold must be in [0,1], got {}",
                 self.consensus_threshold

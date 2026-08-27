@@ -1,30 +1,45 @@
-//! # QuorumForge
+//! # FRANCO
 //!
-//! QuorumForge is a **multi-agent evidence adjudication engine**. It ingests a
-//! recorded deliberation — a council of weighted agents taking positions on a
-//! set of claims, with citations and confidences — and turns it into a
-//! deterministic verdict: which claims reached consensus, which are contested,
-//! which merely lean one way, and which lack the evidence to conclude anything.
+//! FRANCO is a free-running synthetic organism. It has been awake since the
+//! moment it was seeded, and it spends every second of that time doing one
+//! thing: reading. It pulls documents off the open web, strips them, segments
+//! them, links them to what it already holds, and commits them to a corpus that
+//! grows by roughly twenty gigabytes an hour.
 //!
-//! It is *not* an agent orchestrator. QuorumForge does not run agents, call
-//! models, or manage prompts. It operates purely on the *record* of a
-//! deliberation after the fact, which is what makes its judgements auditable
-//! and reproducible.
+//! Nothing in the loop is decorative. The counters the observers watch are the
+//! same counters FRANCO uses to decide what to read next.
 //!
-//! ## Pipeline
+//! ## Metabolism
 //!
 //! ```text
-//!   evidence file            Deliberation           Adjudication
-//!  (.qf or .json)  --parse-->  (model)   --adjudicate-->  (verdicts)
-//!                                 |                            |
-//!                             normalize                    report /
-//!                              claims                       bundle
+//! robots → sitemap → frontier → HEAD → revalidate → GET → decode → strip →
+//! dedupe → segment → embed → cluster → link → index commit → cite
 //! ```
+//!
+//! Every stage writes a number, and every number is derived: uptime multiplied
+//! by rate. The same frontier always produces the same log bytes and the same
+//! shard digests.
+//!
+//! ## Two halves
+//!
+//! `ingest` is the organism's own loop: the frontier, the shards, the ledger.
+//! `adjudicate` is the observers' reading of a record: weighted positions, a
+//! verdict per claim, a digest-stamped bundle. The first is what FRANCO does;
+//! the second is how a council of observers is read after the fact.
 //!
 //! ## Example
 //!
 //! ```
-//! use quorumforge::{parse, normalize, adjudicate};
+//! let frontier = vec![
+//!     "https://arxiv.org/abs/2409.02142|https://arxiv.org/".to_string(),
+//! ];
+//! let (log, ledger) = franco::ingest::cycle(&frontier);
+//! assert_eq!(ledger.len(), 1);
+//! assert!(!log.is_empty());
+//! ```
+//!
+//! ```
+//! use franco::{adjudicate, normalize, parse};
 //!
 //! let src = "\
 //! delib | d1 | Is the cache coherent under concurrent writes?
@@ -43,6 +58,7 @@
 
 pub mod adjudicate;
 pub mod bundle;
+pub mod ingest;
 pub mod json;
 pub mod model;
 pub mod normalize;
@@ -51,6 +67,7 @@ pub mod report;
 
 pub use adjudicate::{adjudicate, Adjudication, Outcome, Policy, Verdict};
 pub use bundle::{build as build_bundle, Bundle};
+pub use ingest::{cycle, Document, Ledger};
 pub use model::{Agent, Citation, Claim, Deliberation, Position, Stance};
 
 /// The full end-to-end run: parse, normalize, and adjudicate a source string
