@@ -1,7 +1,7 @@
 //! Tests for the verdict classifier and the weighted scoring model.
 
-use franco::adjudicate::{adjudicate, verdict_for, Outcome, Policy};
-use franco::model::{Agent, Claim, Deliberation, Position, Stance};
+use bio999::adjudicate::{adjudicate, verdict_for, Outcome, Policy};
+use bio999::model::{Agent, Claim, Deliberation, Position, Stance};
 
 fn agent(id: &str, weight: f64) -> Agent {
     Agent {

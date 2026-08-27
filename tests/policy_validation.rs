@@ -1,4 +1,4 @@
-use franco::adjudicate::Policy;
+use bio999::adjudicate::Policy;
 
 #[test]
 fn non_finite_minimum_mass_is_rejected() {

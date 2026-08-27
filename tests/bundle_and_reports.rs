@@ -1,15 +1,15 @@
 //! Tests for deterministic bundles, normalization, and end-to-end runs against
 //! the checked-in sample deliberations.
 
-use franco::adjudicate::{adjudicate, Outcome, Policy};
-use franco::normalize::{normalize_text, similarity};
-use franco::{bundle, normalize, parse};
+use bio999::adjudicate::{adjudicate, Outcome, Policy};
+use bio999::normalize::{normalize_text, similarity};
+use bio999::{bundle, normalize, parse};
 
 const CACHE: &str = include_str!("../samples/cache-coherence.qf");
 const MIGRATION: &str = include_str!("../samples/migration-strategy.json");
 const NORM: &str = include_str!("../samples/normalization.qf");
 
-fn run(path: &str, src: &str) -> (franco::Deliberation, franco::Adjudication) {
+fn run(path: &str, src: &str) -> (bio999::Deliberation, bio999::Adjudication) {
     let mut d = parse::parse_auto(path, src).unwrap();
     normalize::normalize_deliberation(&mut d);
     let adj = adjudicate(&d, &Policy::default());
@@ -34,16 +34,16 @@ fn bundle_digest_survives_reparse() {
     // Serialise, strip the digest field the way the CLI's `verify` does, and
     // recompute. This guards the idempotent-number invariant end to end.
     let out = bundle::to_json(&b);
-    let root = franco::json::parse(&out).unwrap();
+    let root = bio999::json::parse(&out).unwrap();
     let entries = root.as_object().unwrap();
     let stored = root.get("digest").unwrap().as_str().unwrap();
-    let body: Vec<(String, franco::json::Json)> = entries
+    let body: Vec<(String, bio999::json::Json)> = entries
         .iter()
         .filter(|(k, _)| k != "digest")
         .cloned()
         .collect();
     let recomputed =
-        bundle::fnv1a_hex(franco::json::to_string(&franco::json::Json::Obj(body)).as_bytes());
+        bundle::fnv1a_hex(bio999::json::to_string(&bio999::json::Json::Obj(body)).as_bytes());
     assert_eq!(recomputed, stored);
 }
 
@@ -147,7 +147,7 @@ fn similarity_is_jaccard_over_tokens() {
 #[test]
 fn end_to_end_run_matches_direct_pipeline() {
     let (_d, adj_direct) = run("cache.qf", CACHE);
-    let (_d2, adj_lib) = franco::run("cache.qf", CACHE, &Policy::default()).unwrap();
+    let (_d2, adj_lib) = bio999::run("cache.qf", CACHE, &Policy::default()).unwrap();
     assert_eq!(adj_direct.verdicts, adj_lib.verdicts);
     assert_eq!(adj_direct.cohesion, adj_lib.cohesion);
 }

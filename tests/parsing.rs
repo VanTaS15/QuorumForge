@@ -1,8 +1,8 @@
 //! Tests for the line-oriented and JSON parsers and the JSON codec.
 
-use franco::json::{self, Json};
-use franco::model::Stance;
-use franco::parse;
+use bio999::json::{self, Json};
+use bio999::model::Stance;
+use bio999::parse;
 
 #[test]
 fn parses_minimal_line_format() {
