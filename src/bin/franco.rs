@@ -1,9 +1,9 @@
-//! The `quorumforge` command-line interface.
+//! The `franco` command-line interface.
 //!
 //! Usage:
 //!
 //! ```text
-//! quorumforge <command> [options] <evidence-file>
+//! franco <command> [options] <evidence-file>
 //!
 //! Commands:
 //!   adjudicate   Parse, normalize, and print a text or JSON verdict report.
@@ -26,18 +26,20 @@
 //! Exit codes: `0` success, `2` usage error, `3` parse/validation error,
 //! `4` verify mismatch.
 
-use quorumforge::adjudicate::{adjudicate, Policy};
-use quorumforge::{bundle, json, normalize, parse, report};
+use franco::adjudicate::{adjudicate, Policy};
+use franco::{bundle, json, normalize, parse, report};
 use std::io::{Read, Write};
 use std::process::ExitCode;
 
 const USAGE: &str = "\
-quorumforge — multi-agent evidence adjudication engine
+franco — multi-agent evidence adjudication engine
 
 USAGE:
-    quorumforge <command> [options] <evidence-file | ->
+    franco <command> [options] <evidence-file | ->
 
 COMMANDS:
+    ingest       Run one cycle over a frontier file and print the log.
+    status       Print the organism's live status block.
     adjudicate   Parse, normalize, and print a verdict report (text or JSON).
     bundle       Emit a deterministic, digest-stamped evidence bundle (JSON).
     verify       Re-derive a bundle's digest from its body and confirm it.
@@ -53,11 +55,11 @@ OPTIONS:
     --json                 Treat stdin / extensionless input as JSON.
 
 EXAMPLES:
-    quorumforge adjudicate samples/cache-coherence.qf
-    quorumforge adjudicate --format json samples/vaccine-efficacy.json
-    quorumforge bundle samples/cache-coherence.qf -o bundle.json
-    quorumforge verify bundle.json
-    cat samples/cache-coherence.qf | quorumforge adjudicate -
+    franco adjudicate samples/cache-coherence.qf
+    franco adjudicate --format json samples/vaccine-efficacy.json
+    franco bundle samples/cache-coherence.qf -o bundle.json
+    franco verify bundle.json
+    cat samples/cache-coherence.qf | franco adjudicate -
 ";
 
 fn main() -> ExitCode {
@@ -65,7 +67,7 @@ fn main() -> ExitCode {
     match run(&args) {
         Ok(code) => code,
         Err(err) => {
-            eprintln!("quorumforge: {}", err.message);
+            eprintln!("franco: {}", err.message);
             err.code
         }
     }
@@ -152,6 +154,33 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
         .validate()
         .map_err(|e| CliError::usage(format!("invalid policy: {}", e)))?;
 
+    if command == "status" {
+        print!("{}", franco::ingest::status());
+        return Ok(ExitCode::SUCCESS);
+    }
+
+    if command == "ingest" {
+        let path = input
+            .clone()
+            .unwrap_or_else(|| "samples/frontier.txt".to_string());
+        let contents = std::fs::read_to_string(&path)
+            .map_err(|e| CliError::parse(format!("cannot read '{}': {}", path, e)))?;
+        let lines: Vec<String> = contents.lines().map(|l| l.to_string()).collect();
+        let (log, ledger) = franco::ingest::cycle(&lines);
+        let mut out = String::new();
+        for line in &log {
+            out.push_str(line);
+            out.push('\n');
+        }
+        out.push_str(&format!(
+            "ledger {} · shard digest 0x{}\n",
+            ledger.len(),
+            ledger.digest()
+        ));
+        emit(&output, &out)?;
+        return Ok(ExitCode::SUCCESS);
+    }
+
     let input =
         input.ok_or_else(|| CliError::usage("no evidence file given (use '-' for stdin)"))?;
 
@@ -197,9 +226,7 @@ fn run(args: &[String]) -> Result<ExitCode, CliError> {
                 )?;
                 Ok(ExitCode::SUCCESS)
             } else {
-                eprintln!(
-                    "quorumforge: digest MISMATCH — bundle body does not match its stored digest"
-                );
+                eprintln!("franco: digest MISMATCH — bundle body does not match its stored digest");
                 Ok(ExitCode::from(4))
             }
         }
@@ -211,7 +238,7 @@ fn load_adjudicated(
     path: &str,
     contents: &str,
     policy: &Policy,
-) -> Result<(quorumforge::Deliberation, quorumforge::Adjudication), CliError> {
+) -> Result<(franco::Deliberation, franco::Adjudication), CliError> {
     let mut delib =
         parse::parse_auto(path, contents).map_err(|e| CliError::parse(e.to_string()))?;
     normalize::normalize_deliberation(&mut delib);
@@ -244,7 +271,7 @@ fn verify_bundle(contents: &str) -> Result<bool, CliError> {
     Ok(recomputed == stored)
 }
 
-fn inspect_json(delib: &quorumforge::Deliberation) -> String {
+fn inspect_json(delib: &franco::Deliberation) -> String {
     let agents: Vec<json::Json> = delib
         .agents
         .values()
