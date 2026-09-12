@@ -1,7 +1,7 @@
 //! Tests for the verdict classifier and the weighted scoring model.
 
-use quorumforge::adjudicate::{adjudicate, verdict_for, Outcome, Policy};
-use quorumforge::model::{Agent, Claim, Deliberation, Position, Stance};
+use franco::adjudicate::{adjudicate, verdict_for, Outcome, Policy};
+use franco::model::{Agent, Claim, Deliberation, Position, Stance};
 
 fn agent(id: &str, weight: f64) -> Agent {
     Agent {
