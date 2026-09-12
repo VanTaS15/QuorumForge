@@ -1,4 +1,4 @@
-# franco frontier — one url per line, optional anchor after a pipe
+# bio999 frontier — one url per line, optional anchor after a pipe
 # domains are real; robots.txt and crawl-delay are respected
 https://arxiv.org/list/cs.DC/recent|https://arxiv.org/
 https://www.rfc-editor.org/rfc/rfc9110.html|https://www.rfc-editor.org/

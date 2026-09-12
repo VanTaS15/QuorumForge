@@ -1,7 +1,7 @@
-# FRANCO deliberation — normalization showcase
+# bio999 deliberation — normalization showcase
 # --------------------------------------------------
 # The three claims below are phrased differently but normalize to the same
-# proposition. Run `franco inspect samples/normalization.qf` to see the
+# proposition. Run `bio999 inspect samples/normalization.qf` to see the
 # `normalized` field collapse the hedges and contractions.
 
 delib | normalization | Does the release candidate meet the latency budget?
