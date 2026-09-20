@@ -1,6 +1,6 @@
-// qf-view — the QuorumForge council viewer CLI.
+// qf-view — the FRANCO council viewer CLI.
 //
-// Reads a `quorumforge.report.v1` JSON document (from a file or stdin) and
+// Reads a `franco.report.v1` JSON document (from a file or stdin) and
 // renders it as a coloured console digest or a self-contained HTML page.
 //
 // Usage:
@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { parseReport } from "./report.js";
 import { renderConsole, renderHtml } from "./render.js";
 
-const HELP = `qf-view — QuorumForge council viewer
+const HELP = `qf-view — FRANCO council viewer
 
 USAGE:
   qf-view [options] <report.json | ->
@@ -30,7 +30,7 @@ OPTIONS:
   -h, --help        Show this help.
 
 EXAMPLES:
-  quorumforge adjudicate --format json samples/cache-coherence.qf | qf-view -
+  franco adjudicate --format json samples/cache-coherence.qf | qf-view -
   qf-view --html report.json -o council.html
 `;
 
