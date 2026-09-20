@@ -1,14 +1,14 @@
-# Contributing to FRANCO
+# Contributing to bio999
 
-FRANCO is deliberately scoped: normalize claims, weigh support and
+bio999 is deliberately scoped: normalize claims, weigh support and
 contradiction, render deterministic verdicts - no network, no dependencies,
 no hidden state. Contributions that respect that scope are welcome.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/VanTaS15/FRANCO.git
-cd FRANCO
+git clone https://github.com/VanTaS15/bio999.git
+cd bio999
 cargo build
 cargo test
 ```

@@ -9,7 +9,7 @@
 
 ## Reporting a vulnerability
 
-FRANCO reads local evidence sessions and writes local reports; it
+bio999 reads local evidence sessions and writes local reports; it
 performs no network I/O and executes no downloaded code. The realistic
 surface is malformed session files (parser panics, extreme allocations)
 and path traversal in report output paths.

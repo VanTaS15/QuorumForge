@@ -1,12 +1,12 @@
 # Changelog
 
-All notable changes to FRANCO are documented here. The format follows
+All notable changes to bio999 are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project aims
 to adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.0] — 2026-08-31
 
-The first release. FRANCO arrives as a complete, dependency-free evidence
+The first release. bio999 arrives as a complete, dependency-free evidence
 adjudication engine with a matching council viewer.
 
 ### Added
@@ -26,8 +26,8 @@ adjudication engine with a matching council viewer.
     dissent ceiling, minimum mass) and a mass-weighted cohesion score.
   - Deterministic, digest-stamped evidence bundles (FNV-1a) with a `verify`
     round-trip guarantee.
-  - Text and `franco.report.v1` JSON report renderers.
-- **CLI** (`franco`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
+  - Text and `bio999.report.v1` JSON report renderers.
+- **CLI** (`bio999`) with `adjudicate`, `bundle`, `verify`, `inspect`, and
   `help` commands; stdin support; policy flags; and meaningful exit codes.
 - **TypeScript council viewer** (`qf-view`), dependency-light (only `tsc` at
   build time), with an ANSI console renderer, a self-contained HTML renderer
@@ -47,7 +47,7 @@ adjudication engine with a matching council viewer.
 - Verdicts are fully deterministic: identical inputs yield identical report
   bytes and identical bundle digests.
 
-[0.1.0]: https://example.invalid/franco/releases/tag/v0.1.0
+[0.1.0]: https://example.invalid/bio999/releases/tag/v0.1.0
 
 ## [Unreleased]
 
