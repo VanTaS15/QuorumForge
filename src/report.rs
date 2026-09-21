@@ -134,3 +134,139 @@ fn agent_influence(delib: &Deliberation, adj: &Adjudication) -> Vec<(String, f64
             continue;
         }
         let weight = delib.agent_weight(&pos.agent_id);
+        let conf = pos.confidence.clamp(0.0, 1.0);
+        *scores.entry(pos.agent_id.clone()).or_insert(0.0) += weight * conf;
+    }
+    // Suppress unused warning for adj; kept in signature for symmetry/testability.
+    let _ = adj;
+    scores.into_iter().collect()
+}
+
+/// Wrap `text` to `width` columns, indenting continuation lines with `indent`.
+fn wrap(text: &str, width: usize, indent: &str) -> String {
+    let mut lines: Vec<String> = Vec::new();
+    let mut current = String::new();
+    for word in text.split_whitespace() {
+        if current.is_empty() {
+            current.push_str(word);
+        } else if current.len() + 1 + word.len() > width {
+            lines.push(current.clone());
+            current.clear();
+            current.push_str(word);
+        } else {
+            current.push(' ');
+            current.push_str(word);
+        }
+    }
+    if !current.is_empty() {
+        lines.push(current);
+    }
+    lines.join(&format!("\n{}", indent))
+}
+
+/// Render the structured JSON report consumed by the council viewer.
+pub fn render_json(delib: &Deliberation, adj: &Adjudication) -> String {
+    let verdicts: Vec<Json> = adj
+        .verdicts
+        .values()
+        .map(|v| verdict_report_json(delib, v))
+        .collect();
+
+    let agents: Vec<Json> = {
+        let influence: BTreeMap<String, f64> = agent_influence(delib, adj).into_iter().collect();
+        delib
+            .agents
+            .values()
+            .map(|a| {
+                json::obj(vec![
+                    ("id", json::s(&a.id)),
+                    ("name", json::s(&a.name)),
+                    ("role", json::s(&a.role)),
+                    ("weight", json::num(a.weight)),
+                    (
+                        "influence",
+                        json::num(round6(*influence.get(&a.id).unwrap_or(&0.0))),
+                    ),
+                ])
+            })
+            .collect()
+    };
+
+    let report = json::obj(vec![
+        ("schema", json::s("quorumforge.report.v1")),
+        ("deliberation_id", json::s(&adj.deliberation_id)),
+        ("question", json::s(&adj.question)),
+        (
+            "summary",
+            json::obj(vec![
+                ("total_claims", json::num(adj.tally.total() as f64)),
+                ("consensus", json::num(adj.tally.consensus as f64)),
+                ("contested", json::num(adj.tally.contested as f64)),
+                ("split", json::num(adj.tally.split as f64)),
+                ("unsupported", json::num(adj.tally.unsupported as f64)),
+                ("cohesion", json::num(round6(adj.cohesion))),
+            ]),
+        ),
+        (
+            "policy",
+            json::obj(vec![
+                (
+                    "consensus_threshold",
+                    json::num(adj.policy.consensus_threshold),
+                ),
+                ("dissent_ceiling", json::num(adj.policy.dissent_ceiling)),
+                ("minimum_mass", json::num(adj.policy.minimum_mass)),
+            ]),
+        ),
+        ("agents", Json::Arr(agents)),
+        ("verdicts", Json::Arr(verdicts)),
+    ]);
+
+    json::to_string_pretty(&report)
+}
+
+fn verdict_report_json(delib: &Deliberation, v: &Verdict) -> Json {
+    let claim = delib.claims.get(&v.claim_id);
+    json::obj(vec![
+        ("claim", json::s(&v.claim_id)),
+        (
+            "text",
+            json::s(claim.map(|c| c.text.clone()).unwrap_or_default()),
+        ),
+        (
+            "topic",
+            json::s(claim.map(|c| c.topic.clone()).unwrap_or_default()),
+        ),
+        ("normalized", json::s(&v.normalized)),
+        ("outcome", json::s(v.outcome.as_token())),
+        ("affirmed", Json::Bool(v.affirmed)),
+        ("polarity", json::num(round6(v.polarity))),
+        ("decisive_mass", json::num(round6(v.decisive_mass))),
+        ("support_mass", json::num(round6(v.support_mass))),
+        (
+            "contradiction_mass",
+            json::num(round6(v.contradiction_mass)),
+        ),
+        ("dissent_ratio", json::num(round6(v.dissent_ratio))),
+        ("supporters", json::num(v.supporters as f64)),
+        ("dissenters", json::num(v.dissenters as f64)),
+        ("abstentions", json::num(v.abstentions as f64)),
+        ("citations", json::num(v.citation_count as f64)),
+        (
+            "majority_agents",
+            Json::Arr(v.majority_agents.iter().map(json::s).collect()),
+        ),
+        (
+            "minority_agents",
+            Json::Arr(v.minority_agents.iter().map(json::s).collect()),
+        ),
+    ])
+}
+
+fn round6(x: f64) -> f64 {
+    if x.is_finite() {
+        (x * 1_000_000.0).round() / 1_000_000.0
+    } else {
+        0.0
+    }
+}
