@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We pledge to make participation in the QuorumForge project a harassment-free
+We pledge to make participation in the FRANCO project a harassment-free
 experience for everyone, regardless of age, body size, visible or invisible
 disability, ethnicity, sex characteristics, gender identity and expression,
 level of experience, education, socio-economic status, nationality, personal

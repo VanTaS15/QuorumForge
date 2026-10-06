@@ -1,14 +1,14 @@
-# Contributing to QuorumForge
+# Contributing to FRANCO
 
-QuorumForge is deliberately scoped: normalize claims, weigh support and
+FRANCO is deliberately scoped: normalize claims, weigh support and
 contradiction, render deterministic verdicts - no network, no dependencies,
 no hidden state. Contributions that respect that scope are welcome.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/VanTaS15/QuorumForge.git
-cd QuorumForge
+git clone https://github.com/VanTaS15/FRANCO.git
+cd FRANCO
 cargo build
 cargo test
 ```

@@ -1,4 +1,4 @@
-# QuorumForge — build orchestration for the Rust engine and TypeScript viewer.
+# FRANCO — build orchestration for the Rust engine and TypeScript viewer.
 #
 # Common targets:
 #   make build     compile the release engine and the viewer
@@ -19,7 +19,7 @@ SAMPLE_JSON := samples/migration-strategy.json
 
 .PHONY: help
 help:
-	@echo "QuorumForge make targets:"
+	@echo "FRANCO make targets:"
 	@echo "  build         build the release engine and the viewer"
 	@echo "  build-rust    build the Rust engine (release)"
 	@echo "  build-viewer  install + compile the TypeScript viewer"
