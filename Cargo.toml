@@ -6,3 +6,27 @@ rust-version = "1.74"
 description = "A multi-agent evidence adjudication engine: normalize claims, weigh support and contradiction, and render deterministic verdicts."
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/VanTaS15/QuorumForge"
+keywords = ["evidence", "adjudication", "consensus", "cli", "reasoning"]
+categories = ["command-line-utilities", "text-processing"]
+
+# QuorumForge is deliberately dependency-free. The engine, parser, minimal
+# JSON codec, and CLI are all built on the Rust standard library so that
+# verdicts are reproducible on any toolchain without a lockfile churn.
+
+[lib]
+name = "quorumforge"
+path = "src/lib.rs"
+
+[[bin]]
+name = "quorumforge"
+path = "src/bin/quorumforge.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
