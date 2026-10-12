@@ -15,9 +15,12 @@
 
 <p align="center">
   <a href="#the-organism">The organism</a> ·
+  <a href="#polymorphism">Polymorphism</a> ·
   <a href="#metabolism--adjudication">Metabolism</a> ·
+  <a href="#the-corpus">The corpus</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="#quick-start">Quick start</a> ·
+  <a href="#determinism">Determinism</a> ·
   <a href="#what-is-real-modelled-fiction">What is real</a> ·
   <a href="#license">License</a>
 </p>
@@ -53,6 +56,9 @@ committed.
 Its morphology is expressed from whichever faculty is dominant. It is never finished:
 filaments are always leaving the silhouette.
 
+`X-07` is the observers' specimen number. `bio·ε/909Δ` is the organism's own name, and it
+has renamed itself repeatedly to arrive at it. The rename events are in the log.
+
 ## What that means technically
 
 A Rust CLI (`ingest` + `adjudicate`) produces a deterministic corpus, ledger and verdict
@@ -87,7 +93,8 @@ Twelve expressed morphologies, in the observers' naming: `SEED`, `FILAMENT`, `LA
 `APOTHEOSIS` has been recorded once. It has never been explained.
 
 The plate renders across a level-of-detail ladder `L0–L9` — world in world. At rest about
-sixteen elements are visible; the rest opens under the cursor and under zoom.
+sixteen elements are visible; the rest opens under the cursor and under zoom. Labels live
+in world coordinates, so they hold across the full zoom range.
 
 ## Metabolism & adjudication
 
@@ -96,3 +103,135 @@ sixteen elements are visible; the rest opens under the cursor and under zoom.
 </p>
 
 The read loop:
+
+```
+INGEST → SEGMENT → EMBED → CLUSTER → LINK → COMMIT → CITE
+```
+
+Every committed document leaves a provenance record: domain, path, fetch time, HTTP
+status, bytes, content hash, ETag, crawl depth and the parent it was found on. The crawl
+graph is real. `robots.txt` and `crawl-delay` are respected.
+
+What is committed is then adjudicated: a node is either admitted into the structure or
+moved to dispute. Verdicts are recorded in a ledger, and a dispute is a first-class
+outcome, not an error.
+
+## The corpus
+
+<p align="center">
+  <img src="https://i.imgur.com/0qoR6VL.png" alt="Corpus growth" width="100%">
+</p>
+
+The corpus grows continuously. Counters on the plate — throughput, frontier depth, shard
+map, commit hash, cache ratio — are derived from one base value and one growth rate, so
+nothing contradicts anything else. They are the same counters the organism uses to decide
+what to read next.
+
+The corpus is sharded and append-only. The ledger records every commit and every verdict.
+Nothing is rewritten in place.
+
+## The plate (viewer)
+
+A static viewer renders the current state. Progressive disclosure: one level at a time,
+hover and zoom to reveal. The visual language is monochrome and engraved — hairline bands
+with taper, additive light, a single focal point, and a type system drawn from one sprite
+atlas extracted at runtime.
+
+## Architecture
+
+```
+bio999/
+├── src/            # Rust: ingest, adjudicate, ledger, frontier, shards
+├── viewer/         # TypeScript: the plate (canvas 2D + one WebGL block)
+├── plate/          # generated assets: burst, rings, wires, background
+├── corpus/         # committed documents, sharded
+└── ledger/         # append-only commits and verdicts
+```
+
+The Rust half has no dependencies. The viewer has none either; the sprite font is extracted
+at runtime from a single generated sheet.
+
+## Quick start
+
+```bash
+# Rust 1.74+
+cargo build --release
+
+# print the organism's current state
+./target/release/bio999 status
+
+# ingest a path or a URL
+./target/release/bio999 ingest ./corpus/inbox
+./target/release/bio999 ingest https://example.org/feed.xml
+
+# run adjudication over what was committed
+./target/release/bio999 adjudicate
+```
+
+Serve the viewer over a local server — `getImageData` taints under `file://`:
+
+```bash
+python -m http.server 8000
+# then open the viewer
+```
+
+## CLI reference
+
+| command | description |
+|---|---|
+| `bio999 status` | print state, seed, uptime, counters |
+| `bio999 ingest <path\|url>` | read, segment, embed, cluster, link, commit |
+| `bio999 adjudicate` | pass verdicts over committed nodes |
+| `--seed <hex>` | fix the seed (default `0x7f3a91c4e2b8`) |
+| `--out <dir>` | output root |
+| `--json` | machine-readable output |
+
+Exit codes: `0` ok · `1` usage · `2` ingest error · `3` adjudication dispute.
+
+## Determinism
+
+<p align="center">
+  <img src="https://i.imgur.com/7KAoyn0.png" alt="Seed and provenance" width="100%">
+</p>
+
+One seed, one world. Same seed and same inputs produce byte-identical ledger entries. The
+seed is printed, the versions are reproducible, and the counters never reset.
+
+`SEED 0x7f3a91c4e2b8` is the genome. Everything since has been growth. The seed is
+verifiable and it is not explained.
+
+## What is real, modelled, fiction
+
+- **Real.** The Rust CLI, the ledger, the provenance chain, the determinism, the formats.
+- **Modelled.** In-browser ingestion behind the plate; domains and paths are real, volumes
+  are a model consistent with the rate.
+- **Fiction.** The voice, the stages, the watcher, the renaming. FRANCO is not an acronym;
+  the acronym was invented afterwards, by observers, and never confirmed.
+
+## What it is not
+
+Not a chatbot. Not an assistant. Not a model. Not a product. Not a swarm. Not finished. No
+login, no API key, no dialogue, no "ready" state.
+
+## Roadmap
+
+- [x] deterministic ingest + adjudicate
+- [x] provenance chain and ledger
+- [x] LOD plate with progressive disclosure
+- [ ] shard compaction
+- [ ] multi-corpus federation
+- [ ] `APOTHEOSIS` explained (probably not)
+
+## Contributing
+
+PRs welcome. Keep the Rust half dependency-free and the viewer asset-free beyond
+`plate/`. Match the visual language: monochrome, hairline, additive, one focal point.
+
+## Credits
+
+Built as a single organism by [@bio909](https://github.com/bio909). Inspired by
+adjacent synthetic-life experiments; the substrate here is deliberate.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
