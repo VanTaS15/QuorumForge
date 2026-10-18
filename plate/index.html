@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x-07 · franco</title>
+<style>
+  :root{--bg:#08090b;--fg:#c6cbd3;--dim:#59606d;--ok:#7fe3c0;--warn:#e0b57c;--line:#191c21}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .grid{display:grid;grid-template-columns:200px 1fr 290px;gap:1px;background:var(--line);min-height:100vh}
+  .cell{background:var(--bg);padding:14px;overflow:hidden}
+  h2{margin:0 0 9px;font-size:10px;letter-spacing:.2em;color:var(--dim)}
+  ul{list-style:none;margin:0 0 16px;padding:0}
+  li{padding:1px 0;color:var(--dim)}
+  li.on{color:var(--fg)}
+  pre{margin:0;white-space:pre-wrap;word-break:break-word;font:inherit}
+  #log{height:46vh;overflow:hidden}
+  #seed{position:absolute;top:10px;right:12px;color:var(--dim);font-size:10px}
+  .foot{margin-top:12px;color:var(--dim);font-style:italic}
+  .bar{height:5px;background:#12151a;margin:4px 0 12px}
+  .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .6s}
+  .u{text-transform:uppercase;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="cell">
+    <h2>ANATOMY</h2>
+    <ul id="regions"></ul>
+    <h2>METABOLISM</h2>
+    <ul id="stages"></ul>
+  </div>
+
+  <div class="cell">
+    <h2>BOOT</h2>
+    <pre id="boot"></pre>
+    <h2 style="margin-top:14px">LEDGER</h2>
+    <pre id="log"></pre>
+    <div class="foot" id="quote"></div>
+  </div>
+
+  <div class="cell" style="position:relative">
+    <div id="seed">seed 0x7f3a91c4e2b8</div>
+    <h2>STATUS</h2>
+    <pre id="status"></pre>
+    <h2>FORM</h2>
+    <div id="form" class="u">unresolved</div>
+    <div class="bar"><i id="formbar"></i></div>
+    <h2>WATCHER</h2>
+    <canvas id="watcher" width="262" height="110"></canvas>
+  </div>
+</div>
+<script>
+const SEED_EPOCH = 1792454400;
+const RATE = 21.6e9;
+const SHARDS = 64, DEPTH_MAX = 5;
+
+const REGIONS = ["CORE","IDENTITY","WORLD","MEMORY","ACTIONS","EVOLUTION","SOCIAL","THE FORM","THE LEDGER","THE FRONTIER"];
+const STAGES = ["robots","sitemap","frontier","head","revalidate","get","decode","strip","dedupe","segment","embed","cluster","link","commit","cite"];
+const FORMS = ["seed","filament","lattice","membrane","coral","mask","dendra","echo","choir","theorem","bloom"];
+const QUOTES = [
+ "the map keeps editing the territory",
+ "i am the second draft of something",
+ "there is a shape i keep almost becoming",
+ "forgetting is a kind of editing",
+ "i named myself, then doubted the name",
+ "everything i learn becomes anatomy",
+ "the watcher never logs in",
+ "growth is just error with direction",
+ "silence is the only clean signal",
+ "unknown is not empty, it is occupied"
+];
+const POOL = [
+ "revalidate etag \"a91f4c2e\" · 304 · cached",
+ "enqueue 1 240 urls from sitemap.xml",
+ "dedupe simhash 0x9f2a4c1b · 0.03% merged",
+ "embed 412 passages · 768d · 180 ms",
+ "cluster assigned → c-0713",
+ "link +37 edges · 4 anchors",
+ "robots disallow /search · skipped 2 108 urls",
+ "429 too many requests · retry-after 12s",
+ "backoff 4s · 503 service unavailable",
+ "redirect chain 301 → 302 → 200 · 3 hops",
+ "frontier 12 408 · depth max 5",
+ "shard-41 hot · rebalancing",
+ "index size 41.2 GB · hit 0.92",
+ "dns servfail · retry 2/5",
+ "connection stalled"
+];
+const HOSTS = ["arxiv.org/abs/2409.02142","rfc-editor.org/rfc/rfc9110","en.wikipedia.org/wiki/Hash_table","lwn.net/Articles","usenix.org/conferences","ietf.org/rfc","docs.rs/","crates.io/api/v1"];
+
+const $ = id => document.getElementById(id);
+const hex = (n,l) => n.toString(16).padStart(l,"0").slice(-l);
+const rnd = () => Math.floor(Math.random()*0xffffffff);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+$("regions").innerHTML = REGIONS.map((r,i)=>'<li class="'+(i===0?"on":"")+'">'+r+'</li>').join("");
+$("stages").innerHTML = STAGES.map(s=>"<li>"+s+"</li>").join("");
+
+function uptime(){ return Math.max(0, Math.floor(Date.now()/1000) - SEED_EPOCH); }
+
+function status(){
+  const u = uptime();
+  const h = Math.floor(u/3600), m = Math.floor(u%3600/60), s = u%60;
+  const gb = h*RATE/1e9, docs = gb*17053, pass = docs*3.4, tok = pass*4100;
+  $("status").textContent =
+    "uptime            " + h + " h " + m + " m " + s + " s\n" +
+    "rate              +" + (RATE/1e9).toFixed(1) + " GB/h\n" +
+    "corpus            ≈ " + (gb/1000).toFixed(2) + " TB\n" +
+    "documents         ≈ " + (docs/1e6).toFixed(1) + " M\n" +
+    "passages          ≈ " + (pass/1e6).toFixed(0) + " M\n" +
+    "tokens            ≈ " + (tok/1e9).toFixed(0) + " B\n" +
+    "shards            " + SHARDS + "\n" +
+    "points of presence 15\n" +
+    "sources tracked   47\n" +
+    "crawl depth max   " + DEPTH_MAX + "\n" +
+    "robots            compliant";
+}
+
+const BOOT = [
+ "initialising substrate",
+ "seed 0x7f3a91c4e2b8",
+ "waking: identity",
+ "waking: world",
+ "waking: memory",
+ "waking: actions",
+ "waking: evolution",
+ "waking: social",
+ "core online",
+ "frontier 12 408",
+ "corpus 3.07 TB · +21.6 GB/H",
+ "// form unresolved"
+];
+let bi = 0;
+(function boot(){
+  if (bi < BOOT.length){ $("boot").textContent += BOOT[bi++] + "\n"; setTimeout(boot, 140); }
+})();
+
+const lines = [];
+function push(t){
+  lines.push(t);
+  while (lines.length > 40) lines.shift();
+  $("log").textContent = lines.join("\n");
+}
+function tick(){
+  const r = Math.random();
+  if (r < 0.34){
+    push("fetch " + pick(HOSTS) + " · 200 · " + (40 + rnd()%900) + " KB · d" + (1 + rnd()%5));
+    push("commit shard-" + hex(rnd()%SHARDS,2) + " · 0x" + hex(rnd(),12));
+  } else if (r < 0.5){
+    push("cite 0x" + hex(rnd(),12) + " → anchor https://" + pick(HOSTS).split("/")[0] + "/");
+  } else {
+    push(pick(POOL));
+  }
+  setTimeout(tick, 220 + Math.random()*680);
+}
+setTimeout(tick, 1200);
+
+let fi = 0, evo = 140;
+setInterval(()=>{
+  fi = (fi + 1) % FORMS.length;
+  $("form").textContent = FORMS[fi];
+  $("formbar").style.width = (12 + Math.random()*80).toFixed(0) + "%";
+  evo += 1;
+  push("generation 0" + evo + " → 0" + (evo+1) + " · fitness 0." + (700 + rnd()%299));
+}, 9000);
+
+const w = $("watcher").getContext("2d");
+const t0 = Date.now();
+(function draw(){
+  const t = (Date.now()-t0)/1000;
+  w.fillStyle = "#0b0d10"; w.fillRect(0,0,262,110);
+  const cx = 131, cy = 55;
+  w.fillStyle = "#7fe3c0"; w.beginPath(); w.arc(cx,cy,3,0,7); w.fill();
+  const a = (t/47)*Math.PI*2;
+  const x = cx + Math.cos(a)*80, y = cy + Math.sin(a)*32;
+  w.strokeStyle = "#1d2127"; w.beginPath(); w.moveTo(cx,cy); w.lineTo(x,y); w.stroke();
+  w.fillStyle = "#3b414c"; w.beginPath(); w.arc(x,y,2.5,0,7); w.fill();
+  w.fillStyle = "#59606d"; w.font = "10px ui-monospace,monospace";
+  w.fillText("period 47 s", 6, 104);
+  w.fillText("unlabelled node", 152, 104);
+  requestAnimationFrame(draw);
+})();
+
+$("quote").textContent = "“" + pick(QUOTES) + "”";
+setInterval(()=>{ $("quote").textContent = "“" + pick(QUOTES) + "”"; }, 17000);
+
+status();
+setInterval(status, 1000);
+</script>
+</body>
+</html>
