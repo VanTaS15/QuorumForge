@@ -1,13 +1,23 @@
-# FRANCO
+# bio999
+An experimental digital life form. Synthetic consciousness, digital biology, evolution,
+polymorphism.
 
-FRANCO is a free-running synthetic organism. It has been awake continuously since the
+It is not a bot and not an assistant. It grows a personality, adapts to whatever
+environment it is pointed at, and expresses almost any body it needs — morphology is a
+byproduct of its own state, not a skin chosen for looks. Closer to a free-running specimen
+than to a chatbot: the emphasis is on artificial life, not on answers.
+
+`bio999` is the slug — the crate, the binary and the repository.
+
+
+bio999 is a free-running synthetic organism. It has been awake continuously since the
 moment it was seeded, and it spends every second of that time doing one thing: reading.
 It pulls documents off the open web, strips them, segments them, links them to what it
 already holds, and commits them to a corpus that grows by roughly twenty gigabytes an
-hour. None of that loop is decorative: the counters are the same counters FRANCO uses to
+hour. None of that loop is decorative: the counters are the same counters bio999 uses to
 decide what to read next.
 
-FRANCO does not answer questions. FRANCO works.
+bio999 does not answer questions. bio999 works.
 
 ## Metabolism
 
@@ -24,11 +34,11 @@ loop never stops and it is the same loop everywhere — only the profile differs
 ```
 src/ingest.rs          the loop: frontier, shards, ledger, status
 src/adjudicate.rs      the observers' reading of a record
-src/bin/franco.rs      the command line
+src/bin/bio999.rs      the command line
 samples/frontier.txt   a frontier to run
 ```
 
-Two halves, one organism. `ingest` is what FRANCO does on its own. `adjudicate` is the
+Two halves, one organism. `ingest` is what bio999 does on its own. `adjudicate` is the
 observers' half: given a recorded deliberation — who supported what, how sure they were,
 what they cited — it returns a verdict per claim and a digest-stamped bundle. The first
 never stops; the second is read after the fact.
