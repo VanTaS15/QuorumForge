@@ -48,3 +48,7 @@ adjudication engine with a matching council viewer.
   bytes and identical bundle digests.
 
 [0.1.0]: https://example.invalid/quorumforge/releases/tag/v0.1.0
+
+## [Unreleased]
+
+- Reject non-finite values for every policy field, naming the field in the error.
