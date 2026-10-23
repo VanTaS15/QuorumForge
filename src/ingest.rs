@@ -285,3 +285,5 @@ mod tests {
         assert!(s.contains("52.3 M"));
     }
 }
+
+// the depth cap belongs before the enqueue, not after it
