@@ -1,5 +1,5 @@
-// Type definitions mirroring the `franco.report.v1` JSON schema emitted by
-// `franco adjudicate --format json`. Keeping these in one place lets the
+// Type definitions mirroring the `bio999.report.v1` JSON schema emitted by
+// `bio999 adjudicate --format json`. Keeping these in one place lets the
 // renderer stay fully typed without any runtime schema library.
 
 export type Outcome = "consensus" | "contested" | "split" | "unsupported";
@@ -58,7 +58,7 @@ export interface Report {
 }
 
 /**
- * Validate an untyped parsed value as a FRANCO report. Throws a
+ * Validate an untyped parsed value as a bio999 report. Throws a
  * descriptive error rather than returning a partially-typed object, so the CLI
  * can fail loudly on malformed input.
  */
@@ -67,9 +67,9 @@ export function parseReport(value: unknown): Report {
     throw new Error("report must be a JSON object");
   }
   const obj = value as Record<string, unknown>;
-  if (obj.schema !== "franco.report.v1") {
+  if (obj.schema !== "bio999.report.v1") {
     throw new Error(
-      `unexpected schema '${String(obj.schema)}', expected franco.report.v1`,
+      `unexpected schema '${String(obj.schema)}', expected bio999.report.v1`,
     );
   }
   if (!Array.isArray(obj.verdicts)) {
@@ -82,3 +82,5 @@ export function parseReport(value: unknown): Report {
   // single source of truth for field presence.
   return obj as unknown as Report;
 }
+
+// read the digest field directly instead of rebuilding the body
