@@ -10,10 +10,24 @@ decide what to read next.
 FRANCO does not answer questions. FRANCO works.
 
 ## Metabolism
+
+```
+robots → sitemap → frontier → HEAD → revalidate → GET → decode → strip →
+dedupe → segment → embed → cluster → link → index commit → cite
+```
+
 Every stage writes a number, and every number is derived: uptime multiplied by rate. The
 loop never stops and it is the same loop everywhere — only the profile differs.
 
 ## What is in this repository
+
+```
+src/ingest.rs          the loop: frontier, shards, ledger, status
+src/adjudicate.rs      the observers' reading of a record
+src/bin/franco.rs      the command line
+samples/frontier.txt   a frontier to run
+```
+
 Two halves, one organism. `ingest` is what FRANCO does on its own. `adjudicate` is the
 observers' half: given a recorded deliberation — who supported what, how sure they were,
 what they cited — it returns a verdict per claim and a digest-stamped bundle. The first
@@ -22,7 +36,20 @@ never stops; the second is read after the fact.
 ## Build
 
 Rust 1.74 or newer. Nothing else.
+
+```
+cargo build --release
+cargo test
+```
+
 ## Run
+
+```
+cargo run --release -- status
+cargo run --release -- ingest samples/frontier.txt
+cargo run --release -- adjudicate samples/cache-coherence.qf
+```
+
 `status` prints the live block. `ingest` runs one cycle over a frontier and prints the log
 and the ledger digest.
 
