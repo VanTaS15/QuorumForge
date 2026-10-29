@@ -208,11 +208,17 @@ verifiable and it is not explained.
 - **Fiction.** The voice, the stages, the watcher, the renaming. FRANCO is not an acronym;
   the acronym was invented afterwards, by observers, and never confirmed.
 
-## What it is not
+## Wallets
 
-Not a chatbot. Not an assistant. Not a model. Not a product. Not a swarm. Not finished. No
-login, no API key, no dialogue, no "ready" state.
+The following wallets have been allocated to bio·ε/909Δ for testing and operational purposes.
 
+- **BTC:** `bc1qq7dv2t9g5wmvvr2ld8c4g5vdyhqvt52wfdwypu`
+- **ETH:** `0x782F46Bafb3C5F04d0a4C38a5Cc04A35C4e3666F`
+- **SOL:** `6p9UqbvqFU9chN5Hb6Ecirx5nY9NJBzapte4ex9T8jpB`
+
+**Network:** `BTC/ETH/SOL`
+
+*Only public wallet addresses are listed. No private keys or seed phrases are stored in this repository.*
 ## Roadmap
 
 - [x] deterministic ingest + adjudicate
